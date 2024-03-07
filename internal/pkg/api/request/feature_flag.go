@@ -1,11 +1,11 @@
 package request
 
 type FlagListRequest struct {
-	Page int
-	Size int
+	Page int `json:"page"`
+	Size int `json:"size"`
 }
 
 type FlagValueByKeyRequest struct {
-	Key     string
-	Context map[string]interface{}
+	Key     string                 `json:"key"`
+	Context map[string]interface{} `json:"context"`
 }
