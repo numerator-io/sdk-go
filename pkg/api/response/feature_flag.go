@@ -10,7 +10,7 @@ type FeatureFlag struct {
 	Name                string             `json:"name"`
 	Key                 string             `json:"key"`
 	Status              string             `json:"status"`
-	Description         *string            `json:"description,omitempty"`
+	Description         string             `json:"description,omitempty"`
 	DefaultOnVariation  FlagVariation      `json:"default_on_variation"`
 	DefaultOffVariation FlagVariation      `json:"default_off_variation"`
 	ValueType           enum.FlagValueType `json:"value_type"` // Use the enum.FlagValueType type
