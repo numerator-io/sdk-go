@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/c0x12c/numerator-go-sdk/internal/pkg/api/request"
-	"github.com/c0x12c/numerator-go-sdk/internal/pkg/api/response"
-	"github.com/c0x12c/numerator-go-sdk/internal/pkg/exception"
-	"github.com/c0x12c/numerator-go-sdk/internal/pkg/network"
+	"github.com/c0x12c/numerator-go-sdk/pkg/api/request"
+	"github.com/c0x12c/numerator-go-sdk/pkg/api/response"
+	"github.com/c0x12c/numerator-go-sdk/pkg/exception"
+	"github.com/c0x12c/numerator-go-sdk/pkg/network"
 )
 
 type NumeratorService struct {

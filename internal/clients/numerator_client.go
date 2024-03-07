@@ -1,8 +1,8 @@
 package clients
 
 import (
-	"github.com/c0x12c/numerator-go-sdk/internal/pkg/api/response"
-	"github.com/c0x12c/numerator-go-sdk/internal/pkg/config"
+	"github.com/c0x12c/numerator-go-sdk/pkg/api/response"
+	"github.com/c0x12c/numerator-go-sdk/pkg/config"
 )
 
 type NumeratorClient interface {

@@ -3,12 +3,12 @@ package clients
 import (
 	"fmt"
 
-	"github.com/c0x12c/numerator-go-sdk/internal/pkg/api/response"
-	"github.com/c0x12c/numerator-go-sdk/internal/pkg/config"
-	"github.com/c0x12c/numerator-go-sdk/internal/pkg/enum"
-	"github.com/c0x12c/numerator-go-sdk/internal/pkg/exception"
-	"github.com/c0x12c/numerator-go-sdk/internal/pkg/network"
 	"github.com/c0x12c/numerator-go-sdk/internal/service"
+	"github.com/c0x12c/numerator-go-sdk/pkg/api/response"
+	"github.com/c0x12c/numerator-go-sdk/pkg/config"
+	"github.com/c0x12c/numerator-go-sdk/pkg/enum"
+	"github.com/c0x12c/numerator-go-sdk/pkg/exception"
+	"github.com/c0x12c/numerator-go-sdk/pkg/network"
 )
 
 type DefaultNumeratorClient struct {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/c0x12c/numerator-go-sdk/internal/clients"
-	"github.com/c0x12c/numerator-go-sdk/internal/pkg/config"
+	"github.com/c0x12c/numerator-go-sdk/pkg/config"
 )
 
 func main() {
