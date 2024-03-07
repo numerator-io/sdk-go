@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/c0x12c/numerator-go-sdk/internal/pkg/config"
+	"github.com/c0x12c/numerator-go-sdk/internal/pkg/constant"
 )
 
 type HttpClient struct {
@@ -41,16 +42,16 @@ func (c *HttpClient) Post(path string, queryParams map[string]string, body inter
 	if err != nil {
 		return nil, fmt.Errorf("failed to create HTTP request: %v", err)
 	}
+	req.Header.Set(constant.XNumAPIKeyHeader, c.config.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
-	req.Header.Set("X-NUM-API-KEY", c.config.APIKey)
 
 	// Perform the HTTP request
 	resp, err := c.client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to perform HTTP request: %v", err)
 	}
-
+	fmt.Println("Feature Flags:", resp)
 	return resp, nil
 }
 
