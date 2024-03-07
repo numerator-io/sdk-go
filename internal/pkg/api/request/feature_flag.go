@@ -1,8 +1,8 @@
 package request
 
-type FlagByKeyRequest struct {
-	Key     string
-	Context map[string]interface{}
+type FlagListRequest struct {
+	Page int
+	Size int
 }
 
 type FlagValueByKeyRequest struct {

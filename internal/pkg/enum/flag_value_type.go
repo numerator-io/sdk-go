@@ -1,10 +1,10 @@
 package enum
 
-type FlagValueType int
+type FlagValueType string
 
 const (
-	BOOLEAN FlagValueType = iota
-	STRING
-	LONG
-	DOUBLE
+	BOOLEAN FlagValueType = "BOOLEAN"
+	STRING  FlagValueType = "STRING"
+	LONG    FlagValueType = "LONG"
+	DOUBLE  FlagValueType = "DOUBLE"
 )

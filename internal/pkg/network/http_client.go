@@ -27,8 +27,8 @@ func NewHttpClient(config *config.NumeratorConfig) *HttpClient {
 	}
 }
 
-func (c *HttpClient) Post(path string, body interface{}) (*http.Response, error) {
-	url := c.baseURL + path
+func (c *HttpClient) Post(path string, queryParams map[string]string, body interface{}) (*http.Response, error) {
+	url := c.buildUrl(path, queryParams)
 
 	// Marshal the body to JSON
 	jsonBody, err := json.Marshal(body)
@@ -52,4 +52,19 @@ func (c *HttpClient) Post(path string, body interface{}) (*http.Response, error)
 	}
 
 	return resp, nil
+}
+
+func (c *HttpClient) buildUrl(path string, queryParams map[string]string) string {
+	url := c.baseURL + path
+
+	if len(queryParams) > 0 {
+		url += "?"
+		for key, value := range queryParams {
+			url += fmt.Sprintf("%s=%s&", key, value)
+		}
+		// Remove the last "&" character
+		url = url[:len(url)-1]
+	}
+
+	return url
 }

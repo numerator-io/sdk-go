@@ -7,6 +7,7 @@ import (
 
 	"github.com/c0x12c/numerator-go-sdk/internal/pkg/api/request"
 	"github.com/c0x12c/numerator-go-sdk/internal/pkg/api/response"
+	"github.com/c0x12c/numerator-go-sdk/internal/pkg/exception"
 	"github.com/c0x12c/numerator-go-sdk/internal/pkg/network"
 )
 
@@ -21,11 +22,36 @@ func NewNumeratorService(httpClient *network.HttpClient) *NumeratorService {
 }
 
 func (s *NumeratorService) FlagValueByKey(flagKey string, context map[string]interface{}) (response.ApiResponse, error) {
-	requestBody := request.FlagByKeyRequest{
+	requestBody := request.FlagValueByKeyRequest{
 		Key:     flagKey,
 		Context: context,
 	}
-	resp, err := s.HttpClient.Post(FlagValueByKey, requestBody)
+	resp, err := s.HttpClient.Post(FLAG_VALUE_BY_KEY, nil, requestBody)
+	if err != nil {
+		return nil, fmt.Errorf("failed to perform HTTP request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	return s.handleResponse(resp)
+}
+
+func (s *NumeratorService) FlagList(page, size int) (response.ApiResponse, error) {
+	requestBody := request.FlagListRequest{
+		Page: page,
+		Size: size,
+	}
+	resp, err := s.HttpClient.Post(FLAG_LISTING, nil, requestBody)
+	if err != nil {
+		return nil, fmt.Errorf("failed to perform HTTP request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	return s.handleResponse(resp)
+}
+
+func (s *NumeratorService) FlagDetailByKey(flagKey string) (response.ApiResponse, error) {
+	queryParams := map[string]string{"key": flagKey}
+	resp, err := s.HttpClient.Post(FLAG_DETAIL_BY_KEY, queryParams, "")
 	if err != nil {
 		return nil, fmt.Errorf("failed to perform HTTP request: %v", err)
 	}
@@ -52,13 +78,17 @@ func (s *NumeratorService) handleResponse(resp *http.Response) (response.ApiResp
 
 	switch resp.StatusCode {
 	case 401:
-		msg := "API key is invalid"
-		numeratorError.Message = &msg // Convert string constant to pointer to string
+		msg := exception.NumeratorLogMessage.INVALID_SDK_KEY_ERROR
+		numeratorError.Message = &msg
+	case 404:
+		msg := exception.GetObjectDoesNotExist(*numeratorError.Message)
+		numeratorError.Message = &msg
+	case 400:
+		msg := exception.NumeratorLogMessage.BAD_REQUEST_ERROR
+		numeratorError.Message = &msg
 	default:
-		if numeratorError.Message == nil {
-			status := resp.Status
-			numeratorError.Message = &status // Convert response status to pointer to string
-		}
+		msg := exception.GetUnexpectedHttpResponse(*numeratorError.Message)
+		numeratorError.Message = &msg
 	}
 
 	return &response.FailureResponse{Error: numeratorError}, nil

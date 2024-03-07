@@ -1,13 +1,16 @@
 package exception
 
+import "fmt"
+
 type NumeratorException struct {
-	message string
+	Message string
+	Status  int
 }
 
-func NewNumeratorException(message string) *NumeratorException {
-	return &NumeratorException{message: message}
+func NewNumeratorException(message string, status int) *NumeratorException {
+	return &NumeratorException{Message: message, Status: status}
 }
 
 func (e *NumeratorException) Error() string {
-	return e.message
+	return fmt.Sprintf("Numerator Exception: %s (Status: %d)", e.Message, e.Status)
 }
