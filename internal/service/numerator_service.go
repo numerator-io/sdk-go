@@ -88,15 +88,16 @@ func (s *NumeratorService) handleResponse(resp *http.Response, respType interfac
 		return nil, fmt.Errorf("failed to decode JSON error response: %v", err)
 	}
 
+	// Switch based on HTTP status code constants
 	switch resp.StatusCode {
-	case 401:
-		msg := exception.NumeratorLogMessage.INVALID_SDK_KEY_ERROR
+	case http.StatusUnauthorized: // 401
+		msg := exception.INVALID_SDK_KEY_ERROR
 		numeratorError.Message = &msg
-	case 404:
+	case http.StatusNotFound: // 404
 		msg := exception.GetObjectDoesNotExist(*numeratorError.Message)
 		numeratorError.Message = &msg
-	case 400:
-		msg := exception.NumeratorLogMessage.BAD_REQUEST_ERROR
+	case http.StatusBadRequest: // 400
+		msg := exception.BAD_REQUEST_ERROR
 		numeratorError.Message = &msg
 	default:
 		msg := exception.GetUnexpectedHttpResponse(*numeratorError.Message)
