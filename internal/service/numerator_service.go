@@ -12,10 +12,10 @@ import (
 )
 
 type NumeratorService struct {
-	HttpClient *network.HttpClient // Use the HttpClient from the network package
+	HttpClient network.HttpClient // Use the HttpClient from the network package
 }
 
-func NewNumeratorService(httpClient *network.HttpClient) *NumeratorService {
+func NewNumeratorService(httpClient network.HttpClient) *NumeratorService {
 	return &NumeratorService{
 		HttpClient: httpClient,
 	}
@@ -90,13 +90,13 @@ func (s *NumeratorService) handleResponse(resp *http.Response, respType interfac
 
 	// Switch based on HTTP status code constants
 	switch resp.StatusCode {
-	case http.StatusUnauthorized: // 401
+	case http.StatusUnauthorized:
 		msg := exception.INVALID_SDK_KEY_ERROR
 		numeratorError.Message = &msg
-	case http.StatusNotFound: // 404
+	case http.StatusNotFound:
 		msg := exception.GetObjectDoesNotExist(*numeratorError.Message)
 		numeratorError.Message = &msg
-	case http.StatusBadRequest: // 400
+	case http.StatusBadRequest:
 		msg := exception.BAD_REQUEST_ERROR
 		numeratorError.Message = &msg
 	default:
