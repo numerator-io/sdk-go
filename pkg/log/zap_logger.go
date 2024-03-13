@@ -1,4 +1,4 @@
-package l
+package log
 
 import "go.uber.org/zap"
 
@@ -29,20 +29,6 @@ func (z *ZapLogger) Error(message string, args ...LogArgs) {
 
 func (z *ZapLogger) Warn(message string, args ...LogArgs) {
 	z.logger.Warn(message, convertLogArgsToZapFields(args)...)
-}
-
-func Any(key string, value any) LogArgs {
-	return LogArgs{
-		Key:   key,
-		Value: value,
-	}
-}
-
-func Error(err error) LogArgs {
-	return LogArgs{
-		Key:   "error",
-		Value: err,
-	}
 }
 
 func convertLogArgsToZapFields(args []LogArgs) []zap.Field {
