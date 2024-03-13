@@ -8,7 +8,6 @@ import (
 	"github.com/c0x12c/numerator-go-sdk/pkg/config"
 	"github.com/c0x12c/numerator-go-sdk/pkg/network"
 	"github.com/labstack/echo/v4"
-	"github.com/spf13/viper"
 )
 
 type Router interface {
@@ -22,11 +21,6 @@ func Routers(ctx context.Context, mocks []any) (routes []Router,
 	//// Repositories
 
 	//// Client
-	// Initialize Numerator configuration
-	viper.SetConfigFile(".env")
-	viper.ReadInConfig()
-
-	// apiKey := viper.Get("API_KEY").(string)
 	apiKey := "NUM.oztqpZ2d7wmsAewW0sBKcQ==.wUd8cUDl4uytg3TmHmtl4sKzVrMkEfbvOMQGRP/xurNiuVOBWpsgDJuScQmSdKdi"
 	numeratorConfig := config.NewNumeratorConfig(apiKey)
 	httpClient := network.NewHttpClient(numeratorConfig)
