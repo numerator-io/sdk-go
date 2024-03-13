@@ -1,3 +1,4 @@
+//go:generate mockgen -source numerator_client.go -destination ./mock_client/mock_numerator_client/numerator_client_gen.go
 package clients
 
 import (
@@ -11,6 +12,7 @@ type NumeratorClient interface {
 	GetValueByKeyWithDefault(flagKey string, context map[string]interface{}, defaultValue interface{}) (interface{}, error)
 }
 
+// NewNumeratorClient TODO: Remove if not necessary
 func NewNumeratorClient(apiKey string, numeratorConfig *config.NumeratorConfig) NumeratorClient {
 	if numeratorConfig == nil {
 		numeratorConfig = &config.NumeratorConfig{APIKey: apiKey}
