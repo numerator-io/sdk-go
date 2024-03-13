@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/c0x12c/numerator-go-sdk/internal/service"
+	"github.com/c0x12c/numerator-go-sdk/pkg/api/request"
 	"github.com/c0x12c/numerator-go-sdk/pkg/api/response"
 	"github.com/c0x12c/numerator-go-sdk/pkg/config"
 	"github.com/c0x12c/numerator-go-sdk/pkg/enum"
@@ -12,7 +13,7 @@ import (
 )
 
 type DefaultNumeratorClient struct {
-	service *service.NumeratorService
+	service service.NumeratorService
 }
 
 func NewDefaultNumeratorClient(config *config.NumeratorConfig) *DefaultNumeratorClient {
@@ -24,18 +25,19 @@ func NewDefaultNumeratorClient(config *config.NumeratorConfig) *DefaultNumerator
 }
 
 func (c *DefaultNumeratorClient) FeatureFlags(page, size int) ([]response.FeatureFlag, error) {
-	resp, err := c.service.FlagList(page, size)
+	requestBody := request.FlagListRequest{
+		Page: page,
+		Size: size,
+	}
+	resp, err := c.service.FlagList(requestBody)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch feature flags: %v", err)
 	}
-	successResp, ok := resp.(*response.SuccessResponse)
+	successResp, ok := resp.(*response.SuccessResponse[response.FeatureFlagListResponse])
 	if !ok {
 		return nil, handleErrorResponse(resp)
 	}
-	flagListResp, ok := successResp.SuccessResponse.(*response.FeatureFlagListResponse)
-	if !ok {
-		return nil, fmt.Errorf("unexpected response format for feature flag list")
-	}
+	flagListResp := successResp.SuccessResponse
 	return flagListResp.Data(), nil
 }
 
@@ -44,30 +46,28 @@ func (c *DefaultNumeratorClient) FeatureFlagDetails(flagKey string) (*response.F
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch feature flag details: %v", err)
 	}
-	successResp, ok := resp.(*response.SuccessResponse)
+	successResp, ok := resp.(*response.SuccessResponse[response.FeatureFlag])
 	if !ok {
 		return nil, handleErrorResponse(resp)
 	}
-	flagDetailResp, ok := successResp.SuccessResponse.(*response.FeatureFlag)
-	if !ok {
-		return nil, fmt.Errorf("unexpected response format for feature flag detail")
-	}
+	flagDetailResp := &successResp.SuccessResponse
 	return flagDetailResp, nil
 }
 
 func (c *DefaultNumeratorClient) GetValueByKeyWithDefault(flagKey string, context map[string]interface{}, defaultValue interface{}) (interface{}, error) {
-	resp, err := c.service.FlagValueByKey(flagKey, context)
+	requestBody := request.FlagValueByKeyRequest{
+		Key:     flagKey,
+		Context: context,
+	}
+	resp, err := c.service.FlagValueByKey(requestBody)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch flag value by key: %v", err)
 	}
-	successResp, ok := resp.(*response.SuccessResponse)
+	successResp, ok := resp.(*response.SuccessResponse[response.FeatureFlagVariationValue])
 	if !ok {
 		return nil, handleErrorResponse(resp)
 	}
-	flagValueResp, ok := successResp.SuccessResponse.(*response.FeatureFlagVariationValue)
-	if !ok {
-		return nil, fmt.Errorf("unexpected response format for flag value by key")
-	}
+	flagValueResp := &successResp.SuccessResponse
 	return convertVariationValue(flagValueResp, defaultValue)
 }
 
@@ -103,5 +103,5 @@ func handleErrorResponse(resp response.ApiResponse) error {
 	if !ok {
 		return fmt.Errorf("unexpected response format")
 	}
-	return &exception.NumeratorException{Message: *failureResp.Error.Message, Status: *failureResp.Error.HttpStatus}
+	return &exception.NumeratorException{Message: failureResp.Error.Message, Status: failureResp.Error.HttpStatus}
 }
