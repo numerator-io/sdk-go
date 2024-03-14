@@ -1,12 +1,15 @@
 package clients
 
 import (
+	"testing"
+
+	mock_clients "github.com/c0x12c/numerator-go-sdk/internal/clients/mock_client/mock_numerator_client"
 	"github.com/c0x12c/numerator-go-sdk/pkg/api/response"
 	"github.com/c0x12c/numerator-go-sdk/pkg/config"
 	"github.com/c0x12c/numerator-go-sdk/pkg/constant"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"testing"
+	"go.uber.org/mock/gomock"
 )
 
 type testNumeratorClientSuite struct {
@@ -17,7 +20,7 @@ func TestNumeratorClientSuite(t *testing.T) {
 	suite.Run(t, &testNumeratorClientSuite{})
 }
 
-func (s *testNumeratorClientSuite) TestFeatureFlags() {
+func (s *testNumeratorClientSuite) TestFeatureFlags_FlagListSuccess() {
 	type testCaseIn struct {
 		page int
 		size int
@@ -61,20 +64,33 @@ func (s *testNumeratorClientSuite) TestFeatureFlags() {
 			},
 		},
 	}
-
 	//setup dependencies for test
 	numeratorConfig := config.NewNumeratorConfig(constant.ApiKeyTest)
 	numeratorClient := NewDefaultNumeratorClient(numeratorConfig)
 
 	for _, c := range cases {
 		s.T().Run(c.name, func(t *testing.T) {
-			flags, err := numeratorClient.FeatureFlags(c.in.page, c.in.size)
+			// Create a new mock controller
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
 
-			flagExpected := c.expected.featureFlags[0]
-			flagActual := flags[0]
+			// Create a mock client
+			mockNumeratorClient := mock_clients.NewMockNumeratorClient(ctrl)
 
+			// Define expectations for the FeatureFlags method
+			mockNumeratorClient.EXPECT().FeatureFlags(c.in.page, c.in.size).Return(c.expected.featureFlags, nil)
+
+			// Call the function being tested
+			expectedFlags, err := mockNumeratorClient.FeatureFlags(c.in.page, c.in.size)
 			assert.NoError(t, err)
-			assert.Equal(t, c.in.size, len(flags))
+
+			gotFlags, err := numeratorClient.FeatureFlags(c.in.page, c.in.size)
+			assert.NoError(t, err)
+
+			flagExpected := expectedFlags[0]
+			flagActual := gotFlags[0]
+
+			assert.Equal(t, c.in.size, len(gotFlags))
 			assert.Equal(t, flagExpected.Name, flagActual.Name)
 			assert.Equal(t, flagExpected.Status, flagActual.Status)
 			assert.Equal(t, flagExpected.Key, flagActual.Key)
