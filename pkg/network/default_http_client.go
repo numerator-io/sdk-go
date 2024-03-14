@@ -31,8 +31,6 @@ func NewHttpClient(config *config.NumeratorConfig) HttpClient {
 }
 
 func (c *DefaultHttpClient) Post(path string, queryParams map[string]string, body interface{}) (*http.Response, error) {
-	url := c.buildUrl(path, queryParams)
-
 	// Marshal the body to JSON
 	jsonBody, err := json.Marshal(body)
 
@@ -41,11 +39,19 @@ func (c *DefaultHttpClient) Post(path string, queryParams map[string]string, bod
 	}
 
 	// Create a new HTTP request
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
-
+	req, err := http.NewRequest(http.MethodPost, c.buildUrl(path), bytes.NewBuffer(jsonBody))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create HTTP request: %v", err)
 	}
+
+	// Build query params
+	q := req.URL.Query()
+	for k, v := range queryParams {
+		q.Add(k, v)
+	}
+	req.URL.RawQuery = q.Encode()
+
+	// Build headers
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 	req.Header.Add(constant.XNumAPIKeyHeader, c.config.APIKey)
@@ -59,17 +65,7 @@ func (c *DefaultHttpClient) Post(path string, queryParams map[string]string, bod
 	return resp, nil
 }
 
-func (c *DefaultHttpClient) buildUrl(path string, queryParams map[string]string) string {
+func (c *DefaultHttpClient) buildUrl(path string) string {
 	url := c.baseURL + path
-
-	if len(queryParams) > 0 {
-		url += "?"
-		for key, value := range queryParams {
-			url += fmt.Sprintf("%s=%s&", key, value)
-		}
-		// Remove the last "&" character
-		url = url[:len(url)-1]
-	}
-
 	return url
 }
