@@ -53,7 +53,7 @@ func (s *RouterSuite) TearDownTest() {
 	s.TearDownSuite()
 }
 
-func Request(e *echo.Echo, method string, target string, bodyStr string) []byte {
+func Request(e *echo.Echo, method string, target string, queryParams map[string]string, bodyStr string) []byte {
 	var body io.Reader
 	if bodyStr != "" {
 		body = bytes.NewBufferString(bodyStr)
@@ -62,6 +62,12 @@ func Request(e *echo.Echo, method string, target string, bodyStr string) []byte 
 	}
 	path := constant.BaseURL + target
 	connectRequest := httptest.NewRequest(method, path, body)
+	// Build query params
+	q := connectRequest.URL.Query()
+	for k, v := range queryParams {
+		q.Add(k, v)
+	}
+	connectRequest.URL.RawQuery = q.Encode()
 	connectRequest.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	connectRequest.Header.Add(echo.HeaderAccept, echo.MIMEApplicationJSON)
 	connectRequest.Header.Add(constant.XNumAPIKeyHeader, constant.ApiKeyTest)
@@ -73,13 +79,22 @@ func Request(e *echo.Echo, method string, target string, bodyStr string) []byte 
 	return recorder.Body.Bytes()
 }
 
-func RequestSuccess[T interface{}](e *echo.Echo, method string, target string, bodyStr string) T {
+func RequestSuccess[T interface{}](e *echo.Echo, method string, target string, queryParams map[string]string, bodyStr string) T {
 	var res response.SuccessResponse[T]
-	err := json.Unmarshal(Request(e, method, target, bodyStr), &res)
+	err := json.Unmarshal(Request(e, method, target, queryParams, bodyStr), &res)
 	if err != nil {
 		fmt.Println(err)
 	}
 	return res.SuccessResponse
+}
+
+func RequestFailure(e *echo.Echo, method string, target string, queryParams map[string]string, bodyStr string) response.FailureResponse {
+	var res response.FailureResponse
+	err := json.Unmarshal(Request(e, method, target, queryParams, bodyStr), &res)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return res
 }
 
 func ToJsonString(data any) string {

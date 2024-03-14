@@ -1,7 +1,6 @@
 package route_test
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/c0x12c/numerator-go-sdk/pkg/api/request"
@@ -21,7 +20,7 @@ func (suite *NumeratorRouterSuite) TestNumeratorRouter_FlagList() {
 		Size: constant.Size,
 	}
 
-	resp := RequestSuccess[response.FeatureFlagListResponse](suite.e, http.MethodPost, "/api/sdk/feature-flag/listing", ToJsonString(flagListRequest))
+	resp := RequestSuccess[response.FeatureFlagListResponse](suite.e, http.MethodPost, "/api/sdk/feature-flag/listing", nil, ToJsonString(flagListRequest))
 	assert.Equal(suite.T(), int64(4), resp.Count())
 }
 
@@ -33,7 +32,7 @@ func (suite *NumeratorRouterSuite) TestNumeratorRouter_FlagValueByKey_TestBoolea
 		Context: context,
 	}
 
-	resp := RequestSuccess[response.FeatureFlagVariationValue](suite.e, http.MethodPost, "/api/sdk/feature-flag/by-key", ToJsonString(FlagValueByKeyRequest))
+	resp := RequestSuccess[response.FeatureFlagVariationValue](suite.e, http.MethodPost, "/api/sdk/feature-flag/by-key", nil, ToJsonString(FlagValueByKeyRequest))
 	assert.Equal(suite.T(), true, resp.Value.BooleanValue)
 	assert.Equal(suite.T(), enum.BOOLEAN, resp.ValueType)
 }
@@ -46,17 +45,23 @@ func (suite *NumeratorRouterSuite) TestNumeratorRouter_FlagValueByKey_TestString
 		Context: context,
 	}
 
-	resp := RequestSuccess[response.FeatureFlagVariationValue](suite.e, http.MethodPost, "/api/sdk/feature-flag/by-key", ToJsonString(FlagValueByKeyRequest))
+	resp := RequestSuccess[response.FeatureFlagVariationValue](suite.e, http.MethodPost, "/api/sdk/feature-flag/by-key", nil, ToJsonString(FlagValueByKeyRequest))
 	assert.Equal(suite.T(), "off", resp.Value.StringValue)
 	assert.Equal(suite.T(), enum.STRING, resp.ValueType)
 }
 
 func (suite *NumeratorRouterSuite) TestNumeratorRouter_FlagDetailByKey() {
-	flagKey := constant.FlagKey_Boolean
-	target := fmt.Sprintf("/api/sdk/feature-flag/detail-by-key?key=%s", flagKey)
-	resp := RequestSuccess[response.FeatureFlag](suite.e, http.MethodPost, target, "")
-	fmt.Println(target)
-	assert.Equal(suite.T(), true, resp.DefaultOnVariation.Value.BooleanValue)
-	assert.Equal(suite.T(), false, resp.DefaultOffVariation.Value.BooleanValue)
-	assert.Equal(suite.T(), enum.BOOLEAN, resp.ValueType)
+	flagKey := constant.FlagKey_String
+	queryParams := map[string]string{"key": flagKey}
+	resp := RequestSuccess[response.FeatureFlag](suite.e, http.MethodPost, "/api/sdk/feature-flag/detail-by-key", queryParams, "")
+	assert.Equal(suite.T(), "on", resp.DefaultOnVariation.Value.StringValue)
+	assert.Equal(suite.T(), "off", resp.DefaultOffVariation.Value.StringValue)
+	assert.Equal(suite.T(), enum.STRING, resp.ValueType)
+}
+
+func (suite *NumeratorRouterSuite) TestNumeratorRouter_FlagDetailByKey_NonExistingKey() {
+	flagKey := "go_feature_flag_05"
+	queryParams := map[string]string{"key": flagKey}
+	resp := RequestFailure(suite.e, http.MethodPost, "/api/sdk/feature-flag/detail-by-key", queryParams, "")
+	assert.Equal(suite.T(), 404, resp.Error.HttpStatus)
 }
