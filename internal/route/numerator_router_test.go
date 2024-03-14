@@ -22,11 +22,11 @@ func (suite *NumeratorRouterSuite) TestNumeratorRouter_FlagList() {
 	}
 
 	resp := RequestSuccess[response.FeatureFlagListResponse](suite.e, http.MethodPost, "/api/sdk/feature-flag/listing", ToJsonString(flagListRequest))
-	assert.Equal(suite.T(), int64(2), resp.Count())
+	assert.Equal(suite.T(), int64(4), resp.Count())
 }
 
-func (suite *NumeratorRouterSuite) TestNumeratorRouter_FlagValueByKey() {
-	flagKey := "go_featureflag_01"
+func (suite *NumeratorRouterSuite) TestNumeratorRouter_FlagValueByKey_TestBooleanValue() {
+	flagKey := constant.FlagKey_Boolean
 	context := make(map[string]interface{})
 	FlagValueByKeyRequest := request.FlagValueByKeyRequest{
 		Key:     flagKey,
@@ -34,7 +34,29 @@ func (suite *NumeratorRouterSuite) TestNumeratorRouter_FlagValueByKey() {
 	}
 
 	resp := RequestSuccess[response.FeatureFlagVariationValue](suite.e, http.MethodPost, "/api/sdk/feature-flag/by-key", ToJsonString(FlagValueByKeyRequest))
-	fmt.Println(resp)
 	assert.Equal(suite.T(), true, resp.Value.BooleanValue)
+	assert.Equal(suite.T(), enum.BOOLEAN, resp.ValueType)
+}
+
+func (suite *NumeratorRouterSuite) TestNumeratorRouter_FlagValueByKey_TestStringValue() {
+	flagKey := constant.FlagKey_String
+	context := make(map[string]interface{})
+	FlagValueByKeyRequest := request.FlagValueByKeyRequest{
+		Key:     flagKey,
+		Context: context,
+	}
+
+	resp := RequestSuccess[response.FeatureFlagVariationValue](suite.e, http.MethodPost, "/api/sdk/feature-flag/by-key", ToJsonString(FlagValueByKeyRequest))
+	assert.Equal(suite.T(), "off", resp.Value.StringValue)
+	assert.Equal(suite.T(), enum.STRING, resp.ValueType)
+}
+
+func (suite *NumeratorRouterSuite) TestNumeratorRouter_FlagDetailByKey() {
+	flagKey := constant.FlagKey_Boolean
+	target := fmt.Sprintf("/api/sdk/feature-flag/detail-by-key?key=%s", flagKey)
+	resp := RequestSuccess[response.FeatureFlag](suite.e, http.MethodPost, target, "")
+	fmt.Println(target)
+	assert.Equal(suite.T(), true, resp.DefaultOnVariation.Value.BooleanValue)
+	assert.Equal(suite.T(), false, resp.DefaultOffVariation.Value.BooleanValue)
 	assert.Equal(suite.T(), enum.BOOLEAN, resp.ValueType)
 }

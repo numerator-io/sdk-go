@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"net/http/httptest"
-	"os"
 	"testing"
 	"time"
 
@@ -65,12 +64,12 @@ func Request(e *echo.Echo, method string, target string, bodyStr string) []byte 
 	connectRequest := httptest.NewRequest(method, path, body)
 	connectRequest.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	connectRequest.Header.Add(echo.HeaderAccept, echo.MIMEApplicationJSON)
-	apiKey := os.Getenv("API_KEY")
-	if apiKey != "" {
-		connectRequest.Header.Add(constant.XNumAPIKeyHeader, apiKey)
-	}
+	connectRequest.Header.Add(constant.XNumAPIKeyHeader, constant.ApiKeyTest)
+
 	recorder := httptest.NewRecorder()
 	e.ServeHTTP(recorder, connectRequest)
+	fmt.Println(recorder.Body)
+
 	return recorder.Body.Bytes()
 }
 

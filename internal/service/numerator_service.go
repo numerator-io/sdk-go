@@ -18,10 +18,10 @@ type NumeratorService interface {
 }
 
 type DefaultNumeratorService struct {
-	HttpClient *network.HttpClient // Use the HttpClient from the network package
+	HttpClient network.HttpClient // Use the HttpClient from the network package
 }
 
-func NewNumeratorService(httpClient *network.HttpClient) NumeratorService {
+func NewNumeratorService(httpClient network.HttpClient) NumeratorService {
 	return &DefaultNumeratorService{
 		HttpClient: httpClient,
 	}
