@@ -22,7 +22,7 @@ func main() {
 	logger, _ := log.NewZapLogger()
 
 	// Create Numerator client
-	numeratorClient := clients.NewDefaultNumeratorClient(numeratorConfig)
+	numeratorClient := clients.NewNumeratorClient(numeratorConfig)
 
 	// Fetch feature flags
 	flags, err := numeratorClient.FeatureFlags(constant.Page, constant.Size)
@@ -45,6 +45,7 @@ func main() {
 	context := make(map[string]interface{})
 
 	// Fetch feature flag value by key with empty context
+	flagKey = "go_featureflag_02"
 	defaultBoolean := true
 	booleanValue, err := numeratorClient.GetValueByKeyWithDefault(flagKey, context, defaultBoolean)
 	if err != nil {

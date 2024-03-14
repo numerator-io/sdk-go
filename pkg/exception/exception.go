@@ -3,8 +3,8 @@ package exception
 import "fmt"
 
 type NumeratorException struct {
-	Message string
-	Status  int
+	Message string `json:"message"`
+	Status  int    `json:"status"`
 }
 
 func NewNumeratorException(message string, status int) *NumeratorException {
