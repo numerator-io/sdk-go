@@ -61,7 +61,6 @@ func (c *DefaultHttpClient) Post(path string, queryParams map[string]string, bod
 	if err != nil {
 		return nil, fmt.Errorf("failed to perform HTTP request: %v", err)
 	}
-
 	return resp, nil
 }
 

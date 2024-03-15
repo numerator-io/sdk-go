@@ -1,3 +1,4 @@
+//go:generate mockgen -source numerator_service.go -destination ./mock_service/mock_numerator_service/numerator_service_gen.go
 package service
 
 import (
@@ -11,21 +12,23 @@ import (
 	"github.com/c0x12c/numerator-go-sdk/pkg/network"
 )
 
-type NumeratorService struct {
+type NumeratorService interface {
+	FlagValueByKey(requestBody request.FlagValueByKeyRequest) (response.ApiResponse, error)
+	FlagList(requestBody request.FlagListRequest) (response.ApiResponse, error)
+	FlagDetailByKey(flagKey string) (response.ApiResponse, error)
+}
+
+type DefaultNumeratorService struct {
 	HttpClient network.HttpClient // Use the HttpClient from the network package
 }
 
-func NewNumeratorService(httpClient network.HttpClient) *NumeratorService {
-	return &NumeratorService{
+func NewNumeratorService(httpClient network.HttpClient) NumeratorService {
+	return &DefaultNumeratorService{
 		HttpClient: httpClient,
 	}
 }
 
-func (s *NumeratorService) FlagValueByKey(flagKey string, context map[string]interface{}) (response.ApiResponse, error) {
-	requestBody := request.FlagValueByKeyRequest{
-		Key:     flagKey,
-		Context: context,
-	}
+func (s *DefaultNumeratorService) FlagValueByKey(requestBody request.FlagValueByKeyRequest) (response.ApiResponse, error) {
 	resp, err := s.HttpClient.Post(FLAG_VALUE_BY_KEY, nil, requestBody)
 	if err != nil {
 		return nil, fmt.Errorf("failed to perform HTTP request: %v", err)
@@ -35,11 +38,7 @@ func (s *NumeratorService) FlagValueByKey(flagKey string, context map[string]int
 	return s.handleResponse(resp, response.FeatureFlagVariationValue{})
 }
 
-func (s *NumeratorService) FlagList(page, size int) (response.ApiResponse, error) {
-	requestBody := request.FlagListRequest{
-		Page: page,
-		Size: size,
-	}
+func (s *DefaultNumeratorService) FlagList(requestBody request.FlagListRequest) (response.ApiResponse, error) {
 	resp, err := s.HttpClient.Post(FLAG_LISTING, nil, requestBody)
 	if err != nil {
 		return nil, fmt.Errorf("failed to perform HTTP request: %v", err)
@@ -49,7 +48,7 @@ func (s *NumeratorService) FlagList(page, size int) (response.ApiResponse, error
 	return s.handleResponse(resp, response.FeatureFlagListResponse{})
 }
 
-func (s *NumeratorService) FlagDetailByKey(flagKey string) (response.ApiResponse, error) {
+func (s *DefaultNumeratorService) FlagDetailByKey(flagKey string) (response.ApiResponse, error) {
 	queryParams := map[string]string{"key": flagKey}
 	resp, err := s.HttpClient.Post(FLAG_DETAIL_BY_KEY, queryParams, "")
 	if err != nil {
@@ -60,26 +59,34 @@ func (s *NumeratorService) FlagDetailByKey(flagKey string) (response.ApiResponse
 	return s.handleResponse(resp, response.FeatureFlag{})
 }
 
-func (s *NumeratorService) handleResponse(resp *http.Response, respType interface{}) (response.ApiResponse, error) {
+func (s *DefaultNumeratorService) handleResponse(resp *http.Response, respType interface{}) (response.ApiResponse, error) {
 	if resp.StatusCode >= 200 && resp.StatusCode <= 299 {
-		var featureFlag interface{}
 		switch respType.(type) {
 		case response.FeatureFlagListResponse:
-			featureFlag = new(response.FeatureFlagListResponse)
+			featureFlag := new(response.FeatureFlagListResponse)
+			err := json.NewDecoder(resp.Body).Decode(&featureFlag)
+			if err != nil {
+				return nil, fmt.Errorf("failed to decode JSON response: %v", err)
+			}
+			return &response.SuccessResponse[response.FeatureFlagListResponse]{SuccessResponse: *featureFlag}, nil
 		case response.FeatureFlag:
-			featureFlag = new(response.FeatureFlag)
+			featureFlag := new(response.FeatureFlag)
+			err := json.NewDecoder(resp.Body).Decode(&featureFlag)
+			if err != nil {
+				return nil, fmt.Errorf("failed to decode JSON response: %v", err)
+			}
+			return &response.SuccessResponse[response.FeatureFlag]{SuccessResponse: *featureFlag}, nil
 		case response.FeatureFlagVariationValue:
-			featureFlag = new(response.FeatureFlagVariationValue)
+			featureFlag := new(response.FeatureFlagVariationValue)
+			err := json.NewDecoder(resp.Body).Decode(&featureFlag)
+			if err != nil {
+				return nil, fmt.Errorf("failed to decode JSON response: %v", err)
+			}
+			return &response.SuccessResponse[response.FeatureFlagVariationValue]{SuccessResponse: *featureFlag}, nil
 		default:
 			return nil, fmt.Errorf("request type %s hasn't been supported yet", respType)
 		}
 
-		err := json.NewDecoder(resp.Body).Decode(&featureFlag)
-		if err != nil {
-			return nil, fmt.Errorf("failed to decode JSON response: %v", err)
-		}
-
-		return &response.SuccessResponse{SuccessResponse: featureFlag}, nil
 	}
 
 	var numeratorError response.NumeratorError
@@ -91,17 +98,13 @@ func (s *NumeratorService) handleResponse(resp *http.Response, respType interfac
 	// Switch based on HTTP status code constants
 	switch resp.StatusCode {
 	case http.StatusUnauthorized:
-		msg := exception.INVALID_SDK_KEY_ERROR
-		numeratorError.Message = &msg
+		numeratorError.Message = exception.INVALID_SDK_KEY_ERROR
 	case http.StatusNotFound:
-		msg := exception.GetObjectDoesNotExist(*numeratorError.Message)
-		numeratorError.Message = &msg
+		numeratorError.Message = exception.GetObjectDoesNotExist(numeratorError.Message)
 	case http.StatusBadRequest:
-		msg := exception.BAD_REQUEST_ERROR
-		numeratorError.Message = &msg
+		numeratorError.Message = exception.BAD_REQUEST_ERROR
 	default:
-		msg := exception.GetUnexpectedHttpResponse(*numeratorError.Message)
-		numeratorError.Message = &msg
+		numeratorError.Message = exception.GetUnexpectedHttpResponse(numeratorError.Message)
 	}
 
 	return &response.FailureResponse{Error: numeratorError}, nil
