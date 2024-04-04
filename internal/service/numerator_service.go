@@ -45,7 +45,7 @@ func (s *DefaultNumeratorService) FlagList(requestBody request.FlagListRequest) 
 	}
 	defer resp.Body.Close()
 
-	return s.handleResponse(resp, response.FeatureFlagListResponse{})
+	return s.handleResponse(resp, response.FeatureFlagList{})
 }
 
 func (s *DefaultNumeratorService) FlagDetailByKey(flagKey string) (response.ApiResponse, error) {
@@ -62,13 +62,13 @@ func (s *DefaultNumeratorService) FlagDetailByKey(flagKey string) (response.ApiR
 func (s *DefaultNumeratorService) handleResponse(resp *http.Response, respType interface{}) (response.ApiResponse, error) {
 	if resp.StatusCode >= 200 && resp.StatusCode <= 299 {
 		switch respType.(type) {
-		case response.FeatureFlagListResponse:
-			featureFlag := new(response.FeatureFlagListResponse)
+		case response.FeatureFlagList:
+			featureFlag := new(response.FeatureFlagList)
 			err := json.NewDecoder(resp.Body).Decode(&featureFlag)
 			if err != nil {
 				return nil, fmt.Errorf("failed to decode JSON response: %v", err)
 			}
-			return &response.SuccessResponse[response.FeatureFlagListResponse]{SuccessResponse: *featureFlag}, nil
+			return &response.SuccessResponse[response.FeatureFlagList]{SuccessResponse: *featureFlag}, nil
 		case response.FeatureFlag:
 			featureFlag := new(response.FeatureFlag)
 			err := json.NewDecoder(resp.Body).Decode(&featureFlag)
