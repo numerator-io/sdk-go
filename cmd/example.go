@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/c0x12c/numerator-go-sdk/pkg/context"
 	"github.com/c0x12c/numerator-go-sdk/pkg/log"
 
 	"github.com/c0x12c/numerator-go-sdk/internal/clients"
@@ -22,7 +23,8 @@ func main() {
 	logger, _ := log.NewZapLogger()
 
 	// Create Numerator client
-	numeratorClient := clients.NewNumeratorClient(numeratorConfig)
+	contextProvider := context.NewContextProvider()
+	numeratorClient := clients.NewNumeratorClient(numeratorConfig, contextProvider)
 
 	// Fetch feature flags
 	flags, err := numeratorClient.FeatureFlags(constant.Page, constant.Size)
@@ -41,24 +43,15 @@ func main() {
 	}
 	logger.Info("fetched feature flag details", log.Any("flagDetail", flagDetail))
 
-	// Create an empty context
-	context := make(map[string]interface{})
-
 	// Fetch feature flag value by key with empty context
 	flagKey = "go_featureflag_02"
 	defaultBoolean := true
-	booleanValue, err := numeratorClient.GetValueByKeyWithDefault(flagKey, context, defaultBoolean)
+	booleanValue, err := numeratorClient.BooleanFlagVariationDetail(flagKey, nil, defaultBoolean, true)
 	if err != nil {
 		logger.Error("failed to fetch flag value by key", log.Error(err))
 		return
 	}
-	// Perform type assertion to ensure booleanValue is a boolean
-	boolVal, ok := booleanValue.(bool)
-	if !ok {
-		logger.Error("failed to fetch flag value by key: booleanValue is not a boolean")
-		return
-	}
-	logger.Info("fetched flag value by key", log.Any("BooleanValue", boolVal))
+	logger.Info("fetched flag value by key", log.Any("BooleanValue", booleanValue))
 
 	// Create a context
 	contextEnv := map[string]interface{}{
@@ -66,16 +59,10 @@ func main() {
 	}
 
 	// Fetch feature flag value by key with empty context
-	booleanValue, err = numeratorClient.GetValueByKeyWithDefault(flagKey, contextEnv, defaultBoolean)
+	booleanValue, err = numeratorClient.BooleanFlagVariationDetail(flagKey, contextEnv, defaultBoolean, false)
 	if err != nil {
 		logger.Error("failed to fetch flag value by key", log.Error(err))
 		return
 	}
-	// Perform type assertion to ensure booleanValue is a boolean
-	boolVal, ok = booleanValue.(bool)
-	if !ok {
-		logger.Error("failed to fetch flag value by key: booleanValue is not a boolean")
-		return
-	}
-	logger.Info("fetched flag value by key with context", log.Any("BooleanValue", boolVal))
+	logger.Info("fetched flag value by key with context", log.Any("BooleanValue", booleanValue))
 }

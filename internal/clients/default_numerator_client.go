@@ -212,9 +212,9 @@ func handleErrorResponse(resp response.ApiResponse) error {
 	if !ok {
 		return handleError("unexpected response format")
 	}
-	return &exception.NumeratorException{Message: failureResp.Error.Message, Status: failureResp.Error.HttpStatus}
+	return exception.NewNumeratorException(failureResp.Error.Message, failureResp.Error.HttpStatus)
 }
 
 func handleError(error string) error {
-	return &exception.NumeratorException{Message: error, Status: http.StatusInternalServerError}
+	return exception.NewNumeratorException(error, http.StatusInternalServerError)
 }

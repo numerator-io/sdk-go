@@ -27,7 +27,7 @@ func (s *testNumeratorClientSuite) TestFeatureFlag_FlagListSuccess() {
 	}
 
 	type testCaseOut struct {
-		response *response.SuccessResponse[response.FeatureFlagListResponse]
+		response *response.SuccessResponse[response.FeatureFlagList]
 	}
 
 	cases := []struct {
@@ -44,8 +44,8 @@ func (s *testNumeratorClientSuite) TestFeatureFlag_FlagListSuccess() {
 				},
 			},
 			expected: testCaseOut{
-				response: &response.SuccessResponse[response.FeatureFlagListResponse]{
-					SuccessResponse: response.FeatureFlagListResponse{
+				response: &response.SuccessResponse[response.FeatureFlagList]{
+					SuccessResponse: response.FeatureFlagList{
 						CountVal: 1,
 						DataVal: []response.FeatureFlag{
 							{
@@ -172,7 +172,7 @@ func (s *testNumeratorClientSuite) TestFeatureFlag_FlagValueByKey_Success() {
 		{
 			name: "fetch flag value by LONG key - return correct value",
 			in: testCaseIn{
-				defaultValue: 100,
+				defaultValue: int64(100),
 				requestBody: request.FlagValueByKeyRequest{
 					Key:     constant.FlagKey_Long,
 					Context: nil,
@@ -184,7 +184,7 @@ func (s *testNumeratorClientSuite) TestFeatureFlag_FlagValueByKey_Success() {
 						Key:    "go_featureflag_03",
 						Status: "ON",
 						Value: response.VariationValue{
-							LongValue: 100,
+							LongValue: int64(100),
 						},
 						ValueType: "LONG",
 					},
@@ -236,32 +236,21 @@ func (s *testNumeratorClientSuite) TestFeatureFlag_FlagValueByKey_Success() {
 			}
 
 			// Call the function being tested
-			gotValue, err := numeratorClient.GetValueByKeyWithDefault(c.in.requestBody.Key, c.in.requestBody.Context, c.in.defaultValue)
+			gotValue, err := numeratorClient.FlagValueByKey(c.in.requestBody.Key, c.in.requestBody.Context)
 			assert.NoError(t, err)
 
 			// Assert that the value returned by GetValueByKeyWithDefault can be typecasted to bool
 			flagExpected := expectedResponse.SuccessResponse
-			var extractVal interface{}
-			var ok bool
 
 			switch c.in.defaultValue.(type) {
 			case string:
-				extractVal, ok = gotValue.(string)
-				assert.True(t, ok, "returned value is not of type STRING")
-				assert.Equal(t, flagExpected.Value.StringValue, extractVal)
-
+				assert.Equal(t, flagExpected.Value.StringValue, gotValue.Value.StringValue)
 			case bool:
-				extractVal, ok = gotValue.(bool)
-				assert.True(t, ok, "returned value is not of type BOOLEAN")
-				assert.Equal(t, flagExpected.Value.BooleanValue, extractVal)
-			case int:
-				extractVal, ok = gotValue.(int64)
-				assert.True(t, ok, "returned value is not of type LONG")
-				assert.Equal(t, flagExpected.Value.LongValue, extractVal)
+				assert.Equal(t, flagExpected.Value.BooleanValue, gotValue.Value.BooleanValue)
+			case int64:
+				assert.Equal(t, flagExpected.Value.LongValue, gotValue.Value.LongValue)
 			case float64:
-				extractVal, ok = gotValue.(float64)
-				assert.True(t, ok, "returned value is not of type DOUBLE")
-				assert.Equal(t, flagExpected.Value.DoubleValue, extractVal)
+				assert.Equal(t, flagExpected.Value.DoubleValue, gotValue.Value.DoubleValue)
 			default:
 				return
 			}
@@ -269,7 +258,167 @@ func (s *testNumeratorClientSuite) TestFeatureFlag_FlagValueByKey_Success() {
 	}
 }
 
-func (s *testNumeratorClientSuite) TestFeatureFlag_FlagValueByKey_Failure() {
+func (s *testNumeratorClientSuite) TestFeatureFlag_FlagVariationDetail_No_Context_Success() {
+	type testCaseIn struct {
+		defaultValue interface{}
+		requestBody  request.FlagValueByKeyRequest
+	}
+
+	type testCaseOut struct {
+		response *response.SuccessResponse[response.FeatureFlagVariationValue]
+	}
+
+	cases := []struct {
+		name     string
+		in       testCaseIn
+		expected testCaseOut
+	}{
+		{
+			name: "fetch flag value by BOOLEAN key - return correct value",
+			in: testCaseIn{
+				defaultValue: true,
+				requestBody: request.FlagValueByKeyRequest{
+					Key:     constant.FlagKey_Boolean,
+					Context: nil,
+				},
+			},
+			expected: testCaseOut{
+				response: &response.SuccessResponse[response.FeatureFlagVariationValue]{
+					SuccessResponse: response.FeatureFlagVariationValue{
+						Key:    "go_featureflag_01",
+						Status: "ON",
+						Value: response.VariationValue{
+							BooleanValue: true,
+						},
+						ValueType: "BOOLEAN",
+					},
+				},
+			},
+		},
+		{
+			name: "fetch flag value by STRING key - return correct value",
+			in: testCaseIn{
+				defaultValue: "default_on",
+				requestBody: request.FlagValueByKeyRequest{
+					Key:     constant.FlagKey_String,
+					Context: nil,
+				},
+			},
+			expected: testCaseOut{
+				response: &response.SuccessResponse[response.FeatureFlagVariationValue]{
+					SuccessResponse: response.FeatureFlagVariationValue{
+						Key:    "go_featureflag_02",
+						Status: "ON",
+						Value: response.VariationValue{
+							StringValue: "default_on",
+						},
+						ValueType: "STRING",
+					},
+				},
+			},
+		},
+		{
+			name: "fetch flag value by LONG key - return correct value",
+			in: testCaseIn{
+				defaultValue: int64(100),
+				requestBody: request.FlagValueByKeyRequest{
+					Key:     constant.FlagKey_Long,
+					Context: nil,
+				},
+			},
+			expected: testCaseOut{
+				response: &response.SuccessResponse[response.FeatureFlagVariationValue]{
+					SuccessResponse: response.FeatureFlagVariationValue{
+						Key:    "go_featureflag_03",
+						Status: "ON",
+						Value: response.VariationValue{
+							LongValue: int64(100),
+						},
+						ValueType: "LONG",
+					},
+				},
+			},
+		},
+		{
+			name: "fetch flag value by DOUBLE key - return correct value",
+			in: testCaseIn{
+				defaultValue: 1.5,
+				requestBody: request.FlagValueByKeyRequest{
+					Key:     constant.FlagKey_Double,
+					Context: nil,
+				},
+			},
+			expected: testCaseOut{
+				response: &response.SuccessResponse[response.FeatureFlagVariationValue]{
+					SuccessResponse: response.FeatureFlagVariationValue{
+						Key:    "go_featureflag_04",
+						Status: "ON",
+						Value: response.VariationValue{
+							DoubleValue: 1.5,
+						},
+						ValueType: "DOUBLE",
+					},
+				},
+			},
+		},
+	}
+
+	for _, c := range cases {
+		s.T().Run(c.name, func(t *testing.T) {
+			// Create a new mock controller
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			// Create a mock NumeratorService
+			mockNumeratorService := mock_service.NewMockNumeratorService(ctrl)
+
+			// Define expected response from the mock service
+			expectedResponse := c.expected.response
+
+			// Set up expectations on the mock service
+			mockNumeratorService.EXPECT().FlagValueByKey(c.in.requestBody).Return(expectedResponse, nil)
+
+			// Create the NumeratorClient with the mock service
+			numeratorClient := &DefaultNumeratorClient{
+				service: mockNumeratorService,
+			}
+
+			// Expected flag
+			flagExpected := expectedResponse.SuccessResponse
+
+			switch value := c.in.defaultValue.(type) {
+			case string:
+				defaultString := value
+				// Call the function being tested
+				gotValue, err := numeratorClient.StringFlagVariationDetail(c.in.requestBody.Key, c.in.requestBody.Context, defaultString, false)
+				assert.NoError(t, err)
+				assert.Equal(t, flagExpected.Value.StringValue, gotValue.Value)
+			case bool:
+				defaultBoolean := value
+				// Call the function being tested
+				gotValue, err := numeratorClient.BooleanFlagVariationDetail(c.in.requestBody.Key, c.in.requestBody.Context, defaultBoolean, false)
+				assert.NoError(t, err)
+				assert.Equal(t, flagExpected.Value.BooleanValue, gotValue.Value)
+			case int64:
+				defaultLong := value
+				// Call the function being tested
+				gotValue, err := numeratorClient.LongFlagVariationDetail(c.in.requestBody.Key, c.in.requestBody.Context, defaultLong, false)
+				assert.NoError(t, err)
+				assert.Equal(t, flagExpected.Value.LongValue, gotValue.Value)
+			case float64:
+				defaultDouble := value
+				// Call the function being tested
+				gotValue, err := numeratorClient.DoubleFlagVariationDetail(c.in.requestBody.Key, c.in.requestBody.Context, defaultDouble, false)
+				assert.NoError(t, err)
+				assert.Equal(t, flagExpected.Value.DoubleValue, gotValue.Value)
+			default:
+				return
+			}
+		})
+	}
+}
+
+func (s *testNumeratorClientSuite) TestFeatureFlag_FlagVariationDetail_Failure() {
 	type testCaseIn struct {
 		defaultValue interface{}
 		requestBody  request.FlagValueByKeyRequest
@@ -302,24 +451,6 @@ func (s *testNumeratorClientSuite) TestFeatureFlag_FlagValueByKey_Failure() {
 				},
 			},
 		},
-		{
-			name: "get variation value mismatch type - failure",
-			in: testCaseIn{
-				defaultValue: true,
-				requestBody: request.FlagValueByKeyRequest{
-					Key:     "key_not_found",
-					Context: nil,
-				},
-			},
-			expected: testCaseOut{
-				response: &response.FailureResponse{
-					Error: response.NumeratorError{
-						Message:    "type mismatch",
-						HttpStatus: 401,
-					},
-				},
-			},
-		},
 	}
 
 	for _, c := range cases {
@@ -343,7 +474,7 @@ func (s *testNumeratorClientSuite) TestFeatureFlag_FlagValueByKey_Failure() {
 			}
 
 			// Call the function being tested
-			_, gotError := numeratorClient.GetValueByKeyWithDefault(c.in.requestBody.Key, c.in.requestBody.Context, c.in.defaultValue)
+			_, gotError := numeratorClient.FlagValueByKey(c.in.requestBody.Key, c.in.requestBody.Context)
 			extractError, ok := gotError.(*exception.NumeratorException)
 			assert.True(t, ok, "returned value is not of type NumeratorException")
 

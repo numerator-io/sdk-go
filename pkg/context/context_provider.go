@@ -25,6 +25,6 @@ type ContextProvider interface {
 	Context() map[string]interface{}
 }
 
-func NewContextProvider() *DefaultContextProvider {
+func NewContextProvider() ContextProvider {
 	return &DefaultContextProvider{}
 }

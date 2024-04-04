@@ -105,11 +105,17 @@ type NumeratorClient interface {
 	DoubleFlagVariationDetail(flagKey string, context map[string]interface{}, defaultValue float64, useDefaultContext bool) (*response.FlagEvaluationDetail[float64], error)
 }
 
-func NewNumeratorClient(config *config.NumeratorConfig) *DefaultNumeratorClient {
+func NewNumeratorClient(config *config.NumeratorConfig, contextProvider context.ContextProvider) NumeratorClient {
 	httpClient := network.NewHttpClient(config)
 	nService := service.NewNumeratorService(httpClient)
+
+	// Check if context is nil, if so, create a new context provider
+	if contextProvider == nil {
+		contextProvider = context.NewContextProvider()
+	}
+
 	return &DefaultNumeratorClient{
 		service:         nService,
-		contextProvider: context.NewContextProvider(),
+		contextProvider: contextProvider,
 	}
 }

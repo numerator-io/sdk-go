@@ -1,0 +1,76 @@
+package clients
+
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/c0x12c/numerator-go-sdk/pkg/config"
+	"github.com/c0x12c/numerator-go-sdk/pkg/context"
+	"github.com/c0x12c/numerator-go-sdk/pkg/exception"
+)
+
+type NumeratorFeatureFlagProvider struct {
+	numeratorConfig *config.NumeratorConfig
+	contextProvider context.ContextProvider
+	client          NumeratorClient
+}
+
+func NewNumeratorFeatureFlagProvider(nConfig *config.NumeratorConfig, contextProvider context.ContextProvider) *NumeratorFeatureFlagProvider {
+	if contextProvider == nil {
+		contextProvider = context.NewContextProvider()
+	}
+
+	provider := &NumeratorFeatureFlagProvider{
+		numeratorConfig: nConfig,
+		contextProvider: contextProvider,
+		client:          NewNumeratorClient(nConfig, contextProvider),
+	}
+	return provider
+}
+
+func (p *NumeratorFeatureFlagProvider) GetBooleanFeatureFlag(key string, defaultValue bool, context map[string]interface{}, useDefaultContext bool) bool {
+	val, err := p.getFlagValue(key, defaultValue, context, useDefaultContext)
+	if err != nil {
+		return defaultValue
+	}
+	return val.(bool)
+}
+
+func (p *NumeratorFeatureFlagProvider) GetStringFeatureFlag(key string, defaultValue string, context map[string]interface{}, useDefaultContext bool) string {
+	val, err := p.getFlagValue(key, defaultValue, context, useDefaultContext)
+	if err != nil {
+		return defaultValue
+	}
+	return val.(string)
+}
+
+func (p *NumeratorFeatureFlagProvider) GetLongFeatureFlag(key string, defaultValue int64, context map[string]interface{}, useDefaultContext bool) int64 {
+	val, err := p.getFlagValue(key, defaultValue, context, useDefaultContext)
+	if err != nil {
+		return defaultValue
+	}
+	return val.(int64)
+}
+
+func (p *NumeratorFeatureFlagProvider) GetDoubleFeatureFlag(key string, defaultValue float64, context map[string]interface{}, useDefaultContext bool) float64 {
+	val, err := p.getFlagValue(key, defaultValue, context, useDefaultContext)
+	if err != nil {
+		return defaultValue
+	}
+	return val.(float64)
+}
+
+func (p *NumeratorFeatureFlagProvider) getFlagValue(key string, defaultValue interface{}, context map[string]interface{}, useDefaultContext bool) (interface{}, error) {
+	switch defaultValue := defaultValue.(type) {
+	case bool:
+		return p.client.BooleanFlagVariationDetail(key, context, defaultValue, useDefaultContext)
+	case string:
+		return p.client.StringFlagVariationDetail(key, context, defaultValue, useDefaultContext)
+	case int64:
+		return p.client.LongFlagVariationDetail(key, context, defaultValue, useDefaultContext)
+	case float64:
+		return p.client.DoubleFlagVariationDetail(key, context, defaultValue, useDefaultContext)
+	default:
+		return nil, exception.NewNumeratorException(fmt.Sprintf("Unsupported flag type %T", defaultValue), http.StatusInternalServerError)
+	}
+}
