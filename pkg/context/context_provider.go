@@ -1,3 +1,4 @@
+//go:generate mockgen -source context_provider.go -destination ./mock_context/mock_context_provider/context_provider_gen.go
 package context
 
 /**

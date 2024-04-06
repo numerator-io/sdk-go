@@ -145,8 +145,8 @@ func convertVariationValue(flagVariationValue *response.FeatureFlagVariationValu
 	switch value := defaultValue.(type) {
 	case string:
 		defaultString := value
-		if flagVariationValue.ValueType != enum.DOUBLE {
-			return failedConversion[string](flagVariationValue.Key, defaultString, nil)
+		if flagVariationValue.ValueType != enum.STRING {
+			return failedConversion(flagVariationValue.Key, defaultString, nil)
 		}
 		return &response.FlagEvaluationDetail[string]{
 			Key:    flagVariationValue.Key,
@@ -155,8 +155,8 @@ func convertVariationValue(flagVariationValue *response.FeatureFlagVariationValu
 		}
 	case bool:
 		defaultBoolean := value
-		if flagVariationValue.ValueType != enum.DOUBLE {
-			return failedConversion[bool](flagVariationValue.Key, defaultBoolean, nil)
+		if flagVariationValue.ValueType != enum.BOOLEAN {
+			return failedConversion(flagVariationValue.Key, defaultBoolean, nil)
 		}
 		return &response.FlagEvaluationDetail[bool]{
 			Key:    flagVariationValue.Key,
@@ -165,8 +165,8 @@ func convertVariationValue(flagVariationValue *response.FeatureFlagVariationValu
 		}
 	case int64:
 		defaultLong := value
-		if flagVariationValue.ValueType != enum.DOUBLE {
-			return failedConversion[int64](flagVariationValue.Key, defaultLong, nil)
+		if flagVariationValue.ValueType != enum.LONG {
+			return failedConversion(flagVariationValue.Key, defaultLong, nil)
 		}
 		return &response.FlagEvaluationDetail[int64]{
 			Key:    flagVariationValue.Key,
@@ -176,7 +176,7 @@ func convertVariationValue(flagVariationValue *response.FeatureFlagVariationValu
 	case float64:
 		defaultDouble := value
 		if flagVariationValue.ValueType != enum.DOUBLE {
-			return failedConversion[float64](flagVariationValue.Key, defaultDouble, nil)
+			return failedConversion(flagVariationValue.Key, defaultDouble, nil)
 		}
 		return &response.FlagEvaluationDetail[float64]{
 			Key:    flagVariationValue.Key,
@@ -188,13 +188,13 @@ func convertVariationValue(flagVariationValue *response.FeatureFlagVariationValu
 			"kind":      "Error",
 			"errorKind": "unsupported type",
 		}
-		return failedConversion[models.Unknown](flagVariationValue.Key, models.Unknown{Value: defaultValue}, reason)
+		return failedConversion(flagVariationValue.Key, models.Unknown{Value: defaultValue}, reason)
 	}
 }
 
 func failedConversion[T models.FlagValueType](flagKey string, value T, reason map[string]interface{}) *response.FlagEvaluationDetail[T] {
 	// default reason is type mismatch
-	if reason != nil {
+	if reason == nil {
 		reason = map[string]interface{}{
 			"kind":      "Error",
 			"errorKind": "type mismatch",

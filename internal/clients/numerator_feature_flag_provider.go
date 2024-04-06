@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/c0x12c/numerator-go-sdk/pkg/api/response"
 	"github.com/c0x12c/numerator-go-sdk/pkg/config"
 	"github.com/c0x12c/numerator-go-sdk/pkg/context"
 	"github.com/c0x12c/numerator-go-sdk/pkg/exception"
@@ -33,7 +34,11 @@ func (p *NumeratorFeatureFlagProvider) GetBooleanFeatureFlag(key string, default
 	if err != nil {
 		return defaultValue
 	}
-	return val.(bool)
+	result, ok := val.(*response.FlagEvaluationDetail[bool])
+	if !ok {
+		return defaultValue
+	}
+	return result.Value
 }
 
 func (p *NumeratorFeatureFlagProvider) GetStringFeatureFlag(key string, defaultValue string, context map[string]interface{}, useDefaultContext bool) string {
@@ -41,7 +46,11 @@ func (p *NumeratorFeatureFlagProvider) GetStringFeatureFlag(key string, defaultV
 	if err != nil {
 		return defaultValue
 	}
-	return val.(string)
+	result, ok := val.(*response.FlagEvaluationDetail[string])
+	if !ok {
+		return defaultValue
+	}
+	return result.Value
 }
 
 func (p *NumeratorFeatureFlagProvider) GetLongFeatureFlag(key string, defaultValue int64, context map[string]interface{}, useDefaultContext bool) int64 {
@@ -49,7 +58,11 @@ func (p *NumeratorFeatureFlagProvider) GetLongFeatureFlag(key string, defaultVal
 	if err != nil {
 		return defaultValue
 	}
-	return val.(int64)
+	result, ok := val.(*response.FlagEvaluationDetail[int64])
+	if !ok {
+		return defaultValue
+	}
+	return result.Value
 }
 
 func (p *NumeratorFeatureFlagProvider) GetDoubleFeatureFlag(key string, defaultValue float64, context map[string]interface{}, useDefaultContext bool) float64 {
@@ -57,7 +70,11 @@ func (p *NumeratorFeatureFlagProvider) GetDoubleFeatureFlag(key string, defaultV
 	if err != nil {
 		return defaultValue
 	}
-	return val.(float64)
+	result, ok := val.(*response.FlagEvaluationDetail[float64])
+	if !ok {
+		return defaultValue
+	}
+	return result.Value
 }
 
 func (p *NumeratorFeatureFlagProvider) getFlagValue(key string, defaultValue interface{}, context map[string]interface{}, useDefaultContext bool) (interface{}, error) {
