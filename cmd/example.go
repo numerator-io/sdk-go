@@ -71,7 +71,8 @@ func main() {
 
 	/**** EXAMPLE USING FEATURE FLAG PROVIDER ****/
 	defaultString := "on"
+	contextProvider.Set("env", "dev")
 	numeratorFFProvider := clients.NewNumeratorFeatureFlagProvider(numeratorConfig, contextProvider)
-	gotStringValue := numeratorFFProvider.GetStringFeatureFlag(flagKey, defaultString, contextEnv, false)
+	gotStringValue := numeratorFFProvider.GetStringFeatureFlag(flagKey, defaultString, nil, true)
 	logger.Info(fmt.Sprintf("Use provider to fetch flag value: %v", gotStringValue))
 }
