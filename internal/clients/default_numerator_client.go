@@ -61,6 +61,10 @@ func (c *DefaultNumeratorClient) FeatureFlagDetails(flagKey string) (*response.F
 }
 
 func (c *DefaultNumeratorClient) FlagValueByKey(flagKey string, context map[string]interface{}) (*response.FeatureFlagVariationValue, error) {
+	// Ensure type of context
+	if context == nil {
+		context = make(map[string]interface{})
+	}
 	requestBody := request.FlagValueByKeyRequest{
 		Key:     flagKey,
 		Context: context,

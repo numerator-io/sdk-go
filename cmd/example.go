@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/c0x12c/numerator-go-sdk/pkg/context"
 	"github.com/c0x12c/numerator-go-sdk/pkg/log"
 
@@ -26,43 +28,50 @@ func main() {
 	contextProvider := context.NewContextProvider()
 	numeratorClient := clients.NewNumeratorClient(numeratorConfig, contextProvider)
 
+	/**** EXAMPLE USING CLIENT ****/
+
 	// Fetch feature flags
 	flags, err := numeratorClient.FeatureFlags(constant.Page, constant.Size)
 	if err != nil {
-		logger.Error("failed to fetch feature flags", log.Error(err))
+		logger.Error(fmt.Sprintf("failed to fetch feature flags: %v", err))
 		return
 	}
-	logger.Info("fetched feature flags", log.Any("flags", flags))
+	logger.Info(fmt.Sprintf("Fetched Feature Flags: %v", flags))
 
 	// Fetch feature flag details
-	flagKey := "go_featureflag_01"
+	flagKey := "go_featureflag_02"
 	flagDetail, err := numeratorClient.FeatureFlagDetails(flagKey)
 	if err != nil {
-		logger.Error("failed to fetch feature flag details", log.Error(err))
+		logger.Error(fmt.Sprintf("Failed to fetch feature flag details: %v", err))
 		return
 	}
-	logger.Info("fetched feature flag details", log.Any("flagDetail", flagDetail))
+	logger.Info(fmt.Sprintf("Fetched Feature Flag Details: %v", flagDetail))
 
 	// Fetch feature flag value by key with empty context
-	flagKey = "go_featureflag_02"
-	defaultBoolean := true
-	booleanValue, err := numeratorClient.BooleanFlagVariationDetail(flagKey, nil, defaultBoolean, true)
+	defaultValue := "default"
+	gotValue, err := numeratorClient.StringFlagVariationDetail(flagKey, nil, defaultValue, false)
 	if err != nil {
-		logger.Error("failed to fetch flag value by key", log.Error(err))
+		logger.Error(fmt.Sprintf("Failed to fetch flag value by key: %v", err))
 		return
 	}
-	logger.Info("fetched flag value by key", log.Any("BooleanValue", booleanValue))
+	logger.Info(fmt.Sprintf("Fetched Flag Value by Key: %v", gotValue))
 
 	// Create a context
 	contextEnv := map[string]interface{}{
 		"env": "dev",
 	}
 
-	// Fetch feature flag value by key with empty context
-	booleanValue, err = numeratorClient.BooleanFlagVariationDetail(flagKey, contextEnv, defaultBoolean, false)
+	// Fetch feature flag value by key with context
+	gotValue, err = numeratorClient.StringFlagVariationDetail(flagKey, contextEnv, defaultValue, false)
 	if err != nil {
-		logger.Error("failed to fetch flag value by key", log.Error(err))
+		logger.Error(fmt.Sprintf("Failed to fetch flag value by key with context: %v", err))
 		return
 	}
-	logger.Info("fetched flag value by key with context", log.Any("BooleanValue", booleanValue))
+	logger.Info(fmt.Sprintf("Fetched Flag Value by Key with Context: %v", gotValue))
+
+	/**** EXAMPLE USING FEATURE FLAG PROVIDER ****/
+	defaultString := "on"
+	numeratorFFProvider := clients.NewNumeratorFeatureFlagProvider(numeratorConfig, contextProvider)
+	gotStringValue := numeratorFFProvider.GetStringFeatureFlag(flagKey, defaultString, contextEnv, false)
+	logger.Info(fmt.Sprintf("Use provider to fetch flag value: %v", gotStringValue))
 }
