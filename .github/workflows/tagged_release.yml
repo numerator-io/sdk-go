@@ -1,0 +1,57 @@
+name: Tagged Release
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (e.g. 1.0.0)'
+        required: true
+
+env:
+  GITHUB_TOKEN: ${{ secrets.PAT }}
+  TAG: ${{ github.event.inputs.tag || github.ref }}
+
+jobs:
+  tagged-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ env.GITHUB_TOKEN }}
+          ref: 'refs/tags/${{ env.TAG }}'
+
+      - name: Push release branch
+        run: |
+          git config --global user.email "github-actions@numerator.io"
+          git config --global user.name "Github Actions"
+          git checkout -b release/${{ env.TAG }}
+          git push origin release/${{ env.TAG }}
+
+      - name: Create release
+        uses: "actions/github-script@v7"
+        with:
+          github-token: "${{ env.GITHUB_TOKEN }}"
+          script: |
+            try {
+              const response = await github.rest.repos.createRelease({
+                draft: false,
+                prerelease: false,
+                generate_release_notes: true,
+                name: `Release v${process.env.TAG}`,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag_name: process.env.TAG,
+              });
+
+              core.exportVariable('RELEASE_ID', response.data.id);
+              core.exportVariable('RELEASE_UPLOAD_URL', response.data.upload_url);
+            } catch (error) {
+              core.setFailed(error.message);
+            }

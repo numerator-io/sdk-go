@@ -1,0 +1,211 @@
+name: Publish go package
+
+on:
+  release:
+    types: [created]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Release version (e.g., 1.0.0)'
+        required: true
+
+env:
+  GITHUB_REPOSITORY: ${{ github.repository }}
+  GITHUB_OWNER: ${{ github.repository_owner }}
+  GITHUB_TOKEN: ${{ secrets.PAT }}
+
+jobs:
+  validate-release-version:
+    runs-on: ubuntu-latest
+    steps:
+      # Validate input release version
+      - name: Check input release version
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          if [ -z "${{ github.event.inputs.release_version }}" ]; then
+            echo "Missing input 'release_version'."
+            exit 1
+          fi
+      - name: Validate release version
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          if [[ ! ${{ github.event.inputs.release_version }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid release version format. Please use MAJOR.MINOR.PATCH format (e.g., 1.0.0)"
+            exit 1
+          fi
+
+  release-info-extraction:
+    needs: validate-release-version
+    runs-on: ubuntu-latest
+    outputs:
+      release_version: ${{ steps.release_info.outputs.release_version }}
+      release_exists: ${{ steps.release_info.outputs.release_exists }}
+      release_notes: ${{ steps.release_info.outputs.release_notes }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+          token: ${{ env.GITHUB_TOKEN }}
+
+      - name: Get release info
+        uses: actions/github-script@v7
+        id: release_info
+        with:
+          github-token: ${{ env.GITHUB_TOKEN }}
+          script: |
+            // Function to check if release version exists
+            async function checkReleaseVersion(version) {
+              const owner = process.env.GITHUB_REPOSITORY_OWNER;
+              const repository = process.env.GITHUB_REPOSITORY;
+              const repositoryName = repository.lastIndexOf('/') > -1 ? repository.split('/')[1] : repository;
+              const result = { exists: false, releaseNotes: undefined };
+
+              try {
+                const { status, data } = await github.rest.repos.getReleaseByTag({
+                  owner: owner,
+                  repo: repositoryName,
+                  tag: version,
+                });
+
+                if (status === 404) {
+                  console.log(`Release version [${version}] does not exist.`);
+                  result.exists = false;
+                } else {
+                  console.log(`Release version [${version}] exists.`);
+                  result.exists = true;
+                  result.releaseNotes = data.body;
+                }
+              } catch (error) {
+                console.log(error.message);
+              }
+              return result;
+            };
+
+            const releaseVersion = "${{ github.event.inputs.release_version }}" || "${{ github.event.release.tag_name }}";
+            const releaseVersionExists = await checkReleaseVersion(releaseVersion);
+            if (!releaseVersionExists.exists) {
+              core.setFailed(`Release version [${releaseVersion}] does not exist.`);
+            }
+
+            // Output release version info
+            core.setOutput('release_version', releaseVersion);
+            core.setOutput('release_exists', releaseVersionExists.exists);
+            core.setOutput('release_notes', releaseVersionExists.releaseNotes);
+
+  publish:
+    needs: release-info-extraction
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+          token: ${{ env.GITHUB_TOKEN }}
+          ref: 'refs/tags/${{ needs.release-info-extraction.outputs.release_version }}'
+
+      - name: Ping endpoint
+        run: curl "https://proxy.golang.org/github.com/${{ env.GITHUB_REPOSITORY }}/@v/${{ needs.release-info-extraction.outputs.release_version }}.info"
+
+  publish-slack-notification:
+    needs:
+      - publish
+      - release-info-extraction
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+          token: ${{ env.GITHUB_TOKEN }}
+          ref: 'refs/tags/${{ needs.release-info-extraction.outputs.release_version }}'
+
+      - name: 'Extract Git info'
+        run: |
+          echo "GITHUB_AUTHOR=$(git log -1 --pretty=format:'%an <%ae>' | xargs)" >> $GITHUB_ENV
+          echo "GITHUB_REVISION=$(git rev-parse HEAD)" >> $GITHUB_ENV
+          echo "GITHUB_REPO=$(git config --get remote.origin.url)" >> $GITHUB_ENV
+
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          GITHUB_COMMITS=$(git --no-pager log --pretty=format:'%h (%an) %s' -n3 --no-color |  while read line || [ -n "$line" ]; do echo -n "- $line \\n"; done)
+          echo "GITHUB_COMMITS<<$EOF" >> "$GITHUB_ENV"
+          echo $GITHUB_COMMITS | sed "s/\"/'/g" >> "$GITHUB_ENV"
+          echo "$EOF" >> "$GITHUB_ENV"
+          
+          RELEASE_NOTES=$(echo "${{ needs.release-info-extraction.outputs.release_notes }}" | while read line || [ -n "$line" ]; do echo -n "- $line \\n"; done)
+          echo "RELEASE_NOTES<<$EOF" >> "$GITHUB_ENV"
+          echo $RELEASE_NOTES | sed "s/\"/'/g" >> "$GITHUB_ENV"
+          echo "$EOF" >> "$GITHUB_ENV"
+
+      - name: Slack Notification
+        id: slack
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "channel": "${{ vars.SLACK_CHANNEL }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":rocket: *${{ env.GITHUB_REPOSITORY }} - Published Go package*"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Last Changes by:* ${{ env.GITHUB_AUTHOR }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "```${{ env.GITHUB_COMMITS }}```"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Release Notes:*\n```${{ env.RELEASE_NOTES }}```"
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Release"
+                      },
+                      "style": "primary",
+                      "url": "${{ env.GITHUB_REPO }}/releases/tag/${{ needs.release-info-extraction.outputs.release_version }}"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View package"
+                      },
+                      "style": "primary",
+                      "url": "https://proxy.golang.org/github.com/${{ env.GITHUB_REPOSITORY }}/@v/${{ needs.release-info-extraction.outputs.release_version }}.info"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
