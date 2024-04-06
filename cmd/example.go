@@ -9,16 +9,11 @@ import (
 	"github.com/c0x12c/numerator-go-sdk/internal/clients"
 	"github.com/c0x12c/numerator-go-sdk/pkg/config"
 	"github.com/c0x12c/numerator-go-sdk/pkg/constant"
-
-	"github.com/spf13/viper"
 )
 
 func main() {
 	// Initialize Numerator configuration
-	viper.SetConfigFile(".env")
-	viper.ReadInConfig()
-
-	apiKey := viper.Get("API_KEY").(string)
+	apiKey := ""
 	numeratorConfig := config.NewNumeratorConfig(apiKey)
 
 	// Create a log instance
