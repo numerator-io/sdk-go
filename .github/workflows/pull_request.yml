@@ -3,6 +3,9 @@ name: Analyze Pull Request
 on:
   pull_request:
     branches: [ "master" ]
+    paths:
+      - 'internal/**'
+      - 'pkg/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}      
