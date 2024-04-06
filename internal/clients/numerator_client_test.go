@@ -132,7 +132,7 @@ func (s *testNumeratorClientSuite) TestFeatureFlag_FlagValueByKey_Success() {
 				defaultValue: true,
 				requestBody: request.FlagValueByKeyRequest{
 					Key:     constant.FlagKey_Boolean,
-					Context: nil,
+					Context: map[string]interface{}{},
 				},
 			},
 			expected: testCaseOut{
@@ -154,7 +154,7 @@ func (s *testNumeratorClientSuite) TestFeatureFlag_FlagValueByKey_Success() {
 				defaultValue: "default_on",
 				requestBody: request.FlagValueByKeyRequest{
 					Key:     constant.FlagKey_String,
-					Context: nil,
+					Context: map[string]interface{}{},
 				},
 			},
 			expected: testCaseOut{
@@ -176,7 +176,7 @@ func (s *testNumeratorClientSuite) TestFeatureFlag_FlagValueByKey_Success() {
 				defaultValue: int64(100),
 				requestBody: request.FlagValueByKeyRequest{
 					Key:     constant.FlagKey_Long,
-					Context: nil,
+					Context: map[string]interface{}{},
 				},
 			},
 			expected: testCaseOut{
@@ -198,7 +198,7 @@ func (s *testNumeratorClientSuite) TestFeatureFlag_FlagValueByKey_Success() {
 				defaultValue: 1.5,
 				requestBody: request.FlagValueByKeyRequest{
 					Key:     constant.FlagKey_Double,
-					Context: nil,
+					Context: map[string]interface{}{},
 				},
 			},
 			expected: testCaseOut{
@@ -280,7 +280,7 @@ func (s *testNumeratorClientSuite) TestFeatureFlag_FlagVariationDetail_With_No_C
 				defaultValue: true,
 				requestBody: request.FlagValueByKeyRequest{
 					Key:     constant.FlagKey_Boolean,
-					Context: nil,
+					Context: map[string]interface{}{},
 				},
 			},
 			expected: testCaseOut{
@@ -302,7 +302,7 @@ func (s *testNumeratorClientSuite) TestFeatureFlag_FlagVariationDetail_With_No_C
 				defaultValue: "default_on",
 				requestBody: request.FlagValueByKeyRequest{
 					Key:     constant.FlagKey_String,
-					Context: nil,
+					Context: map[string]interface{}{},
 				},
 			},
 			expected: testCaseOut{
@@ -324,7 +324,7 @@ func (s *testNumeratorClientSuite) TestFeatureFlag_FlagVariationDetail_With_No_C
 				defaultValue: int64(100),
 				requestBody: request.FlagValueByKeyRequest{
 					Key:     constant.FlagKey_Long,
-					Context: nil,
+					Context: map[string]interface{}{},
 				},
 			},
 			expected: testCaseOut{
@@ -346,7 +346,7 @@ func (s *testNumeratorClientSuite) TestFeatureFlag_FlagVariationDetail_With_No_C
 				defaultValue: 1.5,
 				requestBody: request.FlagValueByKeyRequest{
 					Key:     constant.FlagKey_Double,
-					Context: nil,
+					Context: map[string]interface{}{},
 				},
 			},
 			expected: testCaseOut{
@@ -607,7 +607,7 @@ func (s *testNumeratorClientSuite) TestFeatureFlag_FlagVariationDetail_Failure()
 				defaultValue: true,
 				requestBody: request.FlagValueByKeyRequest{
 					Key:     constant.FlagKey_Boolean,
-					Context: nil,
+					Context: map[string]interface{}{},
 				},
 			},
 			expected: testCaseOut{
@@ -629,7 +629,7 @@ func (s *testNumeratorClientSuite) TestFeatureFlag_FlagVariationDetail_Failure()
 				defaultValue: "default_on",
 				requestBody: request.FlagValueByKeyRequest{
 					Key:     constant.FlagKey_String,
-					Context: nil,
+					Context: map[string]interface{}{},
 				},
 			},
 			expected: testCaseOut{
@@ -651,7 +651,7 @@ func (s *testNumeratorClientSuite) TestFeatureFlag_FlagVariationDetail_Failure()
 				defaultValue: int64(100),
 				requestBody: request.FlagValueByKeyRequest{
 					Key:     constant.FlagKey_Long,
-					Context: nil,
+					Context: map[string]interface{}{},
 				},
 			},
 			expected: testCaseOut{
@@ -673,7 +673,7 @@ func (s *testNumeratorClientSuite) TestFeatureFlag_FlagVariationDetail_Failure()
 				defaultValue: 1.5,
 				requestBody: request.FlagValueByKeyRequest{
 					Key:     constant.FlagKey_Double,
-					Context: nil,
+					Context: map[string]interface{}{},
 				},
 			},
 			expected: testCaseOut{
@@ -769,7 +769,7 @@ func (s *testNumeratorClientSuite) TestFeatureFlag_FlagValueByKey_Failure() {
 				defaultValue: true,
 				requestBody: request.FlagValueByKeyRequest{
 					Key:     "key_not_found",
-					Context: nil,
+					Context: map[string]interface{}{},
 				},
 			},
 			expected: testCaseOut{
