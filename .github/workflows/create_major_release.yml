@@ -1,4 +1,4 @@
-name: Create Minor Release
+name: Create Major Release
 
 on:
   workflow_dispatch:
