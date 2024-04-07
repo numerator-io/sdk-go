@@ -1,0 +1,6 @@
+{
+  "name": "numerator-io/sdk-go",
+  "release_strategy": "master",
+  "version": "0.0.1",
+  "language": "golang"
+}
