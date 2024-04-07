@@ -16,7 +16,9 @@ fi
 
 echo "Next release version: $RELEASE_VERSION"
 
-npm version "$RELEASE_VERSION" -no-git-tag-version
+# Update version in manifest.json
+jq --arg version "$RELEASE_VERSION" '.version = $version' manifest.json > manifest.json.tmp && mv manifest.json.tmp manifest.json
+
 git commit -m "chore: bump version to $RELEASE_VERSION" -a
 git push origin master
 
