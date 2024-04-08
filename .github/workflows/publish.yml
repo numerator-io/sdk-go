@@ -108,9 +108,18 @@ jobs:
           fetch-depth: 3
           token: ${{ env.GITHUB_TOKEN }}
           ref: 'refs/tags/${{ needs.release-info-extraction.outputs.release_version }}'
-
+          
       - name: Ping endpoint
         run: curl "https://proxy.golang.org/github.com/${{ env.GITHUB_REPOSITORY }}/@v/${{ needs.release-info-extraction.outputs.release_version }}.info"
+        
+      - name: Setup go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: false          
+
+      - name: Publish go module
+        run: GOPROXY=proxy.golang.org go list -m "github.com/${{ env.GITHUB_REPOSITORY }}@${{ needs.release-info-extraction.outputs.release_version }}"
 
   publish-slack-notification:
     needs:
