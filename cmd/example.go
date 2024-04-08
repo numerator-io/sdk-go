@@ -11,6 +11,18 @@ import (
 	"github.com/c0x12c/numerator-go-sdk/pkg/constant"
 )
 
+// NumeratorProvider embeds existed providers
+type NumeratorProvider struct {
+	*clients.NumeratorFeatureFlagProvider
+}
+
+// NewNumeratorProvider creates a new instance of NumeratorProvider
+func NewNumeratorProvider(config *config.NumeratorConfig, contextProvider context.ContextProvider) *NumeratorProvider {
+	return &NumeratorProvider{
+		clients.NewNumeratorFeatureFlagProvider(config, contextProvider),
+	}
+}
+
 func main() {
 	// Initialize Numerator configuration
 	apiKey := ""
@@ -67,7 +79,7 @@ func main() {
 	/**** EXAMPLE USING FEATURE FLAG PROVIDER ****/
 	defaultString := "on"
 	contextProvider.Set("env", "dev")
-	numeratorFFProvider := clients.NewNumeratorFeatureFlagProvider(numeratorConfig, contextProvider)
-	gotStringValue := numeratorFFProvider.GetStringFeatureFlag(flagKey, defaultString, nil, true)
+	exampleNumeratorProvider := NewNumeratorProvider(numeratorConfig, contextProvider)
+	gotStringValue := exampleNumeratorProvider.GetStringFeatureFlag(flagKey, defaultString, nil, true)
 	logger.Info(fmt.Sprintf("Use provider to fetch flag value: %v", gotStringValue))
 }
