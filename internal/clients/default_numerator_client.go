@@ -8,6 +8,7 @@ import (
 	"github.com/numerator-io/sdk-go/internal/service"
 	"github.com/numerator-io/sdk-go/pkg/api/request"
 	"github.com/numerator-io/sdk-go/pkg/api/response"
+	"github.com/numerator-io/sdk-go/pkg/constant"
 	"github.com/numerator-io/sdk-go/pkg/context"
 	"github.com/numerator-io/sdk-go/pkg/enum"
 	"github.com/numerator-io/sdk-go/pkg/exception"
@@ -27,7 +28,11 @@ func (c *DefaultNumeratorClient) SetContextProvider(contextProvider context.Cont
 }
 
 func (c *DefaultNumeratorClient) Version() string {
-	return "1.0.0" // Implement version retrieval here if needed
+	version, err := models.GetVersionFromMetadataFile(constant.MetadataPath)
+	if err != nil {
+		return ""
+	}
+	return version
 }
 
 func (c *DefaultNumeratorClient) FeatureFlags(page, size int) ([]response.FeatureFlag, error) {
