@@ -2,7 +2,7 @@ package models
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 )
 
 // Metadata represents the structure of the manifest.json object
@@ -15,7 +15,7 @@ type Metadata struct {
 
 func GetVersionFromMetadataFile(filePath string) (string, error) {
 	// Read the content of the Metadata file
-	MetadataJSON, err := ioutil.ReadFile(filePath)
+	MetadataJSON, err := os.ReadFile(filePath)
 	if err != nil {
 		return "", err
 	}
