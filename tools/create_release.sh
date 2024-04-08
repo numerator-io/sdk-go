@@ -3,7 +3,7 @@
 SEMTAG='./tools/semtag'
 ACTION=${1:-patch}
 # If true it will add the user prefix, e.g. 1.0.0 -> v1.0.0 or v1.0.0 -> v1.0.0
-V_PREFIX=${2:-false}
+V_PREFIX=${2:-true}
 
 git fetch origin --tags
 
