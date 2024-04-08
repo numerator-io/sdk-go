@@ -15,7 +15,10 @@ func NewZapLogger() (Logger, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer logger.Sync()
+	defer func() {
+		if err := logger.Sync(); err != nil {
+		}
+	}()
 	return &ZapLogger{
 		logger: logger,
 	}, nil
