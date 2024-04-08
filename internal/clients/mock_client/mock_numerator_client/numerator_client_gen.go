@@ -12,8 +12,8 @@ package mock_clients
 import (
 	reflect "reflect"
 
-	response "github.com/c0x12c/numerator-go-sdk/pkg/api/response"
-	context "github.com/c0x12c/numerator-go-sdk/pkg/context"
+	response "github.com/numerator-io/sdk-go/pkg/api/response"
+	context "github.com/numerator-io/sdk-go/pkg/context"
 	gomock "go.uber.org/mock/gomock"
 )
 

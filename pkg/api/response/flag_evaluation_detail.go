@@ -3,7 +3,7 @@ package response
 import (
 	"fmt"
 
-	"github.com/c0x12c/numerator-go-sdk/internal/models"
+	"github.com/numerator-io/sdk-go/internal/models"
 )
 
 /**

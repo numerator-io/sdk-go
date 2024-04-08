@@ -1,8 +1,6 @@
 package log
 
 import (
-	"fmt"
-
 	"go.uber.org/zap"
 )
 
@@ -17,12 +15,7 @@ func NewZapLogger() (Logger, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer func() {
-		if err := logger.Sync(); err != nil {
-			// Handle the error from logger.Sync()
-			fmt.Println("Error syncing logger:", err)
-		}
-	}()
+	defer logger.Sync()
 	return &ZapLogger{
 		logger: logger,
 	}, nil

@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/c0x12c/numerator-go-sdk/internal/models"
-	"github.com/c0x12c/numerator-go-sdk/internal/service"
-	"github.com/c0x12c/numerator-go-sdk/pkg/api/request"
-	"github.com/c0x12c/numerator-go-sdk/pkg/api/response"
-	"github.com/c0x12c/numerator-go-sdk/pkg/context"
-	"github.com/c0x12c/numerator-go-sdk/pkg/enum"
-	"github.com/c0x12c/numerator-go-sdk/pkg/exception"
+	"github.com/numerator-io/sdk-go/internal/models"
+	"github.com/numerator-io/sdk-go/internal/service"
+	"github.com/numerator-io/sdk-go/pkg/api/request"
+	"github.com/numerator-io/sdk-go/pkg/api/response"
+	"github.com/numerator-io/sdk-go/pkg/context"
+	"github.com/numerator-io/sdk-go/pkg/enum"
+	"github.com/numerator-io/sdk-go/pkg/exception"
 )
 
 type DefaultNumeratorClient struct {

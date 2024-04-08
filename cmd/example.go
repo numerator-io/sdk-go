@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 
-	"github.com/c0x12c/numerator-go-sdk/pkg/context"
-	"github.com/c0x12c/numerator-go-sdk/pkg/log"
+	"github.com/numerator-io/sdk-go/pkg/context"
+	"github.com/numerator-io/sdk-go/pkg/log"
 
-	"github.com/c0x12c/numerator-go-sdk/internal/clients"
-	"github.com/c0x12c/numerator-go-sdk/pkg/config"
-	"github.com/c0x12c/numerator-go-sdk/pkg/constant"
+	"github.com/numerator-io/sdk-go/internal/clients"
+	"github.com/numerator-io/sdk-go/pkg/config"
+	"github.com/numerator-io/sdk-go/pkg/constant"
 )
 
 // NumeratorProvider embeds existed providers
@@ -25,7 +25,7 @@ func NewNumeratorProvider(config *config.NumeratorConfig, contextProvider contex
 
 func main() {
 	// Initialize Numerator configuration
-	apiKey := ""
+	apiKey := "" // add your apiKey here
 	numeratorConfig := config.NewNumeratorConfig(apiKey)
 
 	// Create a log instance

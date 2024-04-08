@@ -3,12 +3,12 @@ package clients
 import (
 	"testing"
 
-	mock_service "github.com/c0x12c/numerator-go-sdk/internal/service/mock_service/mock_numerator_service"
-	"github.com/c0x12c/numerator-go-sdk/pkg/api/request"
-	"github.com/c0x12c/numerator-go-sdk/pkg/api/response"
-	"github.com/c0x12c/numerator-go-sdk/pkg/constant"
-	mock_context "github.com/c0x12c/numerator-go-sdk/pkg/context/mock_context/mock_context_provider"
-	"github.com/c0x12c/numerator-go-sdk/pkg/exception"
+	mock_service "github.com/numerator-io/sdk-go/internal/service/mock_service/mock_numerator_service"
+	"github.com/numerator-io/sdk-go/pkg/api/request"
+	"github.com/numerator-io/sdk-go/pkg/api/response"
+	"github.com/numerator-io/sdk-go/pkg/constant"
+	mock_context "github.com/numerator-io/sdk-go/pkg/context/mock_context/mock_context_provider"
+	"github.com/numerator-io/sdk-go/pkg/exception"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/mock/gomock"

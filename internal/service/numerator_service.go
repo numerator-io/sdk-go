@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/c0x12c/numerator-go-sdk/pkg/api/request"
-	"github.com/c0x12c/numerator-go-sdk/pkg/api/response"
-	"github.com/c0x12c/numerator-go-sdk/pkg/exception"
-	"github.com/c0x12c/numerator-go-sdk/pkg/network"
+	"github.com/numerator-io/sdk-go/pkg/api/request"
+	"github.com/numerator-io/sdk-go/pkg/api/response"
+	"github.com/numerator-io/sdk-go/pkg/exception"
+	"github.com/numerator-io/sdk-go/pkg/network"
 )
 
 type NumeratorService interface {

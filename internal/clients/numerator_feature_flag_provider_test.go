@@ -3,9 +3,9 @@ package clients
 import (
 	"testing"
 
-	mock_clients "github.com/c0x12c/numerator-go-sdk/internal/clients/mock_client/mock_numerator_client"
-	"github.com/c0x12c/numerator-go-sdk/pkg/api/response"
-	"github.com/c0x12c/numerator-go-sdk/pkg/constant"
+	mock_clients "github.com/numerator-io/sdk-go/internal/clients/mock_client/mock_numerator_client"
+	"github.com/numerator-io/sdk-go/pkg/api/response"
+	"github.com/numerator-io/sdk-go/pkg/constant"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/mock/gomock"

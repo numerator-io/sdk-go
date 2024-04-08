@@ -3,7 +3,7 @@ package response
 import (
 	"time"
 
-	"github.com/c0x12c/numerator-go-sdk/pkg/enum"
+	"github.com/numerator-io/sdk-go/pkg/enum"
 )
 
 type FeatureFlag struct {
