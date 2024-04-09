@@ -25,13 +25,18 @@ func NewNumeratorProvider(config *config.NumeratorConfig, contextProvider contex
 
 // Custom method for dev use
 func (p *NumeratorProvider) FeatureFlag2Enabled() string {
-	result := p.GetStringFeatureFlag("go_featureflag_02", "default", nil, true)
+	// You may choose to fetch feature flag of type BOOLEAN, STRING, LONG (int64) or DOUBLE (float64)
+	flagKey := "" // add your flag key here
+	defaultValue := "default"
+	givenContext := map[string]interface{}{}
+	useDefaultContext := true
+	result := p.GetStringFeatureFlag(flagKey, defaultValue, givenContext, useDefaultContext)
 	return result
 }
 
 func main() {
 	// Initialize Numerator configuration
-	apiKey := "NUM.qS+pX7yl6/a5F2zUBRKhZg==.5eGo03ier/p6QjcJSddCCpmRJYTOZ5JzDWeufbQhCIQwMBnC2MCNmccsKRyvX/iq" // add your apiKey here
+	apiKey := "" // add your apiKey here
 	numeratorConfig := config.NewNumeratorConfig(apiKey)
 
 	// Create a log instance
@@ -43,7 +48,7 @@ func main() {
 
 	/**** EXAMPLE USING CLIENT ****/
 
-	// Fetch feature flags
+	// Fetch feature flag list
 	flags, err := numeratorClient.FeatureFlags(constant.Page, constant.Size)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to fetch feature flags: %v", err))
@@ -52,7 +57,7 @@ func main() {
 	logger.Info(fmt.Sprintf("Fetched Feature Flags: %v", flags))
 
 	// Fetch feature flag details
-	flagKey := "go_featureflag_02"
+	flagKey := "" // add your flag key here
 	flagDetail, err := numeratorClient.FeatureFlagDetails(flagKey)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Failed to fetch feature flag details: %v", err))
@@ -61,6 +66,7 @@ func main() {
 	logger.Info(fmt.Sprintf("Fetched Feature Flag Details: %v", flagDetail))
 
 	// Fetch feature flag value by key with empty context
+	// You may choose to fetch feature flag of type BOOLEAN, STRING, LONG (int64) or DOUBLE (float64)
 	defaultValue := "default"
 	gotValue, err := numeratorClient.StringFlagVariationDetail(flagKey, nil, defaultValue, false)
 	if err != nil {
