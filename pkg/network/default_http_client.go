@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/c0x12c/numerator-go-sdk/pkg/config"
-	"github.com/c0x12c/numerator-go-sdk/pkg/constant"
+	"github.com/numerator-io/sdk-go/pkg/config"
+	"github.com/numerator-io/sdk-go/pkg/constant"
 )
 
 type DefaultHttpClient struct {

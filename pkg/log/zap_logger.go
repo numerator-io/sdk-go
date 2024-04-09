@@ -1,6 +1,10 @@
 package log
 
-import "go.uber.org/zap"
+import (
+	"fmt"
+
+	"go.uber.org/zap"
+)
 
 var _ Logger = (*ZapLogger)(nil)
 
@@ -13,7 +17,12 @@ func NewZapLogger() (Logger, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer logger.Sync()
+	defer func() {
+		if err := logger.Sync(); err != nil {
+			// Handle the error from logger.Sync()
+			fmt.Println("Error syncing logger:", err)
+		}
+	}()
 	return &ZapLogger{
 		logger: logger,
 	}, nil

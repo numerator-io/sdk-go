@@ -12,7 +12,8 @@ package mock_clients
 import (
 	reflect "reflect"
 
-	response "github.com/c0x12c/numerator-go-sdk/pkg/api/response"
+	response "github.com/numerator-io/sdk-go/pkg/api/response"
+	context "github.com/numerator-io/sdk-go/pkg/context"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -37,6 +38,36 @@ func NewMockNumeratorClient(ctrl *gomock.Controller) *MockNumeratorClient {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockNumeratorClient) EXPECT() *MockNumeratorClientMockRecorder {
 	return m.recorder
+}
+
+// BooleanFlagVariationDetail mocks base method.
+func (m *MockNumeratorClient) BooleanFlagVariationDetail(flagKey string, context map[string]any, defaultValue, useDefaultContext bool) (*response.FlagEvaluationDetail[bool], error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BooleanFlagVariationDetail", flagKey, context, defaultValue, useDefaultContext)
+	ret0, _ := ret[0].(*response.FlagEvaluationDetail[bool])
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BooleanFlagVariationDetail indicates an expected call of BooleanFlagVariationDetail.
+func (mr *MockNumeratorClientMockRecorder) BooleanFlagVariationDetail(flagKey, context, defaultValue, useDefaultContext any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BooleanFlagVariationDetail", reflect.TypeOf((*MockNumeratorClient)(nil).BooleanFlagVariationDetail), flagKey, context, defaultValue, useDefaultContext)
+}
+
+// DoubleFlagVariationDetail mocks base method.
+func (m *MockNumeratorClient) DoubleFlagVariationDetail(flagKey string, context map[string]any, defaultValue float64, useDefaultContext bool) (*response.FlagEvaluationDetail[float64], error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DoubleFlagVariationDetail", flagKey, context, defaultValue, useDefaultContext)
+	ret0, _ := ret[0].(*response.FlagEvaluationDetail[float64])
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DoubleFlagVariationDetail indicates an expected call of DoubleFlagVariationDetail.
+func (mr *MockNumeratorClientMockRecorder) DoubleFlagVariationDetail(flagKey, context, defaultValue, useDefaultContext any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DoubleFlagVariationDetail", reflect.TypeOf((*MockNumeratorClient)(nil).DoubleFlagVariationDetail), flagKey, context, defaultValue, useDefaultContext)
 }
 
 // FeatureFlagDetails mocks base method.
@@ -69,17 +100,87 @@ func (mr *MockNumeratorClientMockRecorder) FeatureFlags(page, size any) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FeatureFlags", reflect.TypeOf((*MockNumeratorClient)(nil).FeatureFlags), page, size)
 }
 
-// GetValueByKeyWithDefault mocks base method.
-func (m *MockNumeratorClient) GetValueByKeyWithDefault(flagKey string, context map[string]any, defaultValue any) (any, error) {
+// FlagValueByKey mocks base method.
+func (m *MockNumeratorClient) FlagValueByKey(flagKey string, context map[string]any) (*response.FeatureFlagVariationValue, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetValueByKeyWithDefault", flagKey, context, defaultValue)
-	ret0, _ := ret[0].(any)
+	ret := m.ctrl.Call(m, "FlagValueByKey", flagKey, context)
+	ret0, _ := ret[0].(*response.FeatureFlagVariationValue)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetValueByKeyWithDefault indicates an expected call of GetValueByKeyWithDefault.
-func (mr *MockNumeratorClientMockRecorder) GetValueByKeyWithDefault(flagKey, context, defaultValue any) *gomock.Call {
+// FlagValueByKey indicates an expected call of FlagValueByKey.
+func (mr *MockNumeratorClientMockRecorder) FlagValueByKey(flagKey, context any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetValueByKeyWithDefault", reflect.TypeOf((*MockNumeratorClient)(nil).GetValueByKeyWithDefault), flagKey, context, defaultValue)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FlagValueByKey", reflect.TypeOf((*MockNumeratorClient)(nil).FlagValueByKey), flagKey, context)
+}
+
+// GetContextProvider mocks base method.
+func (m *MockNumeratorClient) GetContextProvider() context.ContextProvider {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetContextProvider")
+	ret0, _ := ret[0].(context.ContextProvider)
+	return ret0
+}
+
+// GetContextProvider indicates an expected call of GetContextProvider.
+func (mr *MockNumeratorClientMockRecorder) GetContextProvider() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetContextProvider", reflect.TypeOf((*MockNumeratorClient)(nil).GetContextProvider))
+}
+
+// LongFlagVariationDetail mocks base method.
+func (m *MockNumeratorClient) LongFlagVariationDetail(flagKey string, context map[string]any, defaultValue int64, useDefaultContext bool) (*response.FlagEvaluationDetail[int64], error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "LongFlagVariationDetail", flagKey, context, defaultValue, useDefaultContext)
+	ret0, _ := ret[0].(*response.FlagEvaluationDetail[int64])
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// LongFlagVariationDetail indicates an expected call of LongFlagVariationDetail.
+func (mr *MockNumeratorClientMockRecorder) LongFlagVariationDetail(flagKey, context, defaultValue, useDefaultContext any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LongFlagVariationDetail", reflect.TypeOf((*MockNumeratorClient)(nil).LongFlagVariationDetail), flagKey, context, defaultValue, useDefaultContext)
+}
+
+// SetContextProvider mocks base method.
+func (m *MockNumeratorClient) SetContextProvider(contextProvider context.ContextProvider) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetContextProvider", contextProvider)
+}
+
+// SetContextProvider indicates an expected call of SetContextProvider.
+func (mr *MockNumeratorClientMockRecorder) SetContextProvider(contextProvider any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetContextProvider", reflect.TypeOf((*MockNumeratorClient)(nil).SetContextProvider), contextProvider)
+}
+
+// StringFlagVariationDetail mocks base method.
+func (m *MockNumeratorClient) StringFlagVariationDetail(flagKey string, context map[string]any, defaultValue string, useDefaultContext bool) (*response.FlagEvaluationDetail[string], error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "StringFlagVariationDetail", flagKey, context, defaultValue, useDefaultContext)
+	ret0, _ := ret[0].(*response.FlagEvaluationDetail[string])
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// StringFlagVariationDetail indicates an expected call of StringFlagVariationDetail.
+func (mr *MockNumeratorClientMockRecorder) StringFlagVariationDetail(flagKey, context, defaultValue, useDefaultContext any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StringFlagVariationDetail", reflect.TypeOf((*MockNumeratorClient)(nil).StringFlagVariationDetail), flagKey, context, defaultValue, useDefaultContext)
+}
+
+// Version mocks base method.
+func (m *MockNumeratorClient) Version() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Version")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// Version indicates an expected call of Version.
+func (mr *MockNumeratorClientMockRecorder) Version() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Version", reflect.TypeOf((*MockNumeratorClient)(nil).Version))
 }

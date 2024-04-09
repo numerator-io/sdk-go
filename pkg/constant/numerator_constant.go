@@ -5,6 +5,7 @@ const (
 	Page             = 0
 	Size             = 10
 	BaseURL          = "https://service-platform.dev.numerator.io"
+	MetadataPath     = "manifest.json"
 )
 
 const (

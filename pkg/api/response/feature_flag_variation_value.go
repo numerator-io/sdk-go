@@ -1,7 +1,7 @@
 package response
 
 import (
-	"github.com/c0x12c/numerator-go-sdk/pkg/enum"
+	"github.com/numerator-io/sdk-go/pkg/enum"
 )
 
 type FeatureFlagVariationValue struct {
