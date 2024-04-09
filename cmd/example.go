@@ -23,9 +23,15 @@ func NewNumeratorProvider(config *config.NumeratorConfig, contextProvider contex
 	}
 }
 
+// Custom method for dev use
+func (p *NumeratorProvider) FeatureFlag2Enabled() string {
+	result := p.GetStringFeatureFlag("go_featureflag_02", "default", nil, true)
+	return result
+}
+
 func main() {
 	// Initialize Numerator configuration
-	apiKey := "" // add your apiKey here
+	apiKey := "NUM.qS+pX7yl6/a5F2zUBRKhZg==.5eGo03ier/p6QjcJSddCCpmRJYTOZ5JzDWeufbQhCIQwMBnC2MCNmccsKRyvX/iq" // add your apiKey here
 	numeratorConfig := config.NewNumeratorConfig(apiKey)
 
 	// Create a log instance
@@ -77,9 +83,9 @@ func main() {
 	logger.Info(fmt.Sprintf("Fetched Flag Value by Key with Context: %v", gotValue))
 
 	/**** EXAMPLE USING FEATURE FLAG PROVIDER ****/
-	defaultString := "on"
+
 	contextProvider.Set("env", "dev")
 	exampleNumeratorProvider := NewNumeratorProvider(numeratorConfig, contextProvider)
-	gotStringValue := exampleNumeratorProvider.GetStringFeatureFlag(flagKey, defaultString, nil, true)
+	gotStringValue := exampleNumeratorProvider.FeatureFlag2Enabled()
 	logger.Info(fmt.Sprintf("Use provider to fetch flag value: %v", gotStringValue))
 }
