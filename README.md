@@ -3,7 +3,7 @@ Numerator SDK for the Go programming language.
 
 ## Quickstart
 
-1. Create a subclass of `NumeratorFeatureFlagProvider` and define feature flags:
+1. Create a `NumeratorProvider` embedding prefered Providers and define some custom methods:
 
 ```go
 import (
