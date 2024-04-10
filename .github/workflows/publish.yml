@@ -94,11 +94,6 @@ jobs:
             core.setOutput('release_exists', releaseVersionExists.exists);
             core.setOutput('release_notes', releaseVersionExists.releaseNotes);
 
-      - name: Extract major version
-        run: |
-          MAJOR_VERSION=$(echo "${{ steps.release_info.outputs.release_version }}" | cut -d '.' -f 1)
-          echo "MAJOR_VERSION=$MAJOR_VERSION" >> $GITHUB_ENV
-
   publish:
     needs: release-info-extraction
     runs-on: ubuntu-latest
@@ -166,6 +161,11 @@ jobs:
           RELEASE_NOTES=$(echo "${{ needs.release-info-extraction.outputs.release_notes }}" | while read line || [ -n "$line" ]; do echo -n "- $line \\n"; done)
           echo "RELEASE_NOTES<<$EOF" >> "$GITHUB_ENV"
           echo $RELEASE_NOTES | sed "s/\"/'/g" >> "$GITHUB_ENV"
+          echo "$EOF" >> "$GITHUB_ENV"
+
+          MAJOR_VERSION=$(echo "${{ needs.release-info-extraction.outputs.release_version }}" | cut -d '.' -f 1)
+          echo "MAJOR_VERSION<<$EOF" >> "$GITHUB_ENV"
+          echo $MAJOR_VERSION | sed "s/\"/'/g" >> "$GITHUB_ENV"
           echo "$EOF" >> "$GITHUB_ENV"
 
       - name: Slack Notification
