@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       release_version:
-        description: 'Release version (e.g., 1.0.0)'
+        description: 'Release version (e.g., v1.0.0)'
         required: true
 
 env:
@@ -30,8 +30,8 @@ jobs:
       - name: Validate release version
         if: github.event_name == 'workflow_dispatch'
         run: |
-          if [[ ! ${{ github.event.inputs.release_version }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Invalid release version format. Please use MAJOR.MINOR.PATCH format (e.g., 1.0.0)"
+          if [[ ! ${{ github.event.inputs.release_version }} =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid release version format. Please use v<MAJOR>.<MINOR>.<PATCH> format (e.g., v1.0.0)"
             exit 1
           fi
 
@@ -94,6 +94,10 @@ jobs:
             core.setOutput('release_exists', releaseVersionExists.exists);
             core.setOutput('release_notes', releaseVersionExists.releaseNotes);
 
+            // Extract major version
+            MAJOR_VERSION=$(echo "${{ needs.release-info-extraction.outputs.release_version }}" | cut -d '.' -f 1)
+            echo "MAJOR_VERSION=$MAJOR_VERSION" >> $GITHUB_ENV
+
   publish:
     needs: release-info-extraction
     runs-on: ubuntu-latest
@@ -108,15 +112,24 @@ jobs:
           fetch-depth: 3
           token: ${{ env.GITHUB_TOKEN }}
           ref: 'refs/tags/${{ needs.release-info-extraction.outputs.release_version }}'
-          
-      - name: Ping endpoint
-        run: curl "https://proxy.golang.org/github.com/${{ env.GITHUB_REPOSITORY }}/@v/${{ needs.release-info-extraction.outputs.release_version }}.info"
-        
+
       - name: Setup go
         uses: actions/setup-go@v5
         with:
           go-version: '1.22'
-          cache: false          
+          cache: false
+
+      - name: Install CA certificates
+        run: sudo apt-get update && sudo apt-get install -y ca-certificates
+      
+      - name: Removes any dependencies the module might have accumulated that are no longer necessary
+        run: go mod tidy
+
+      - name: Build go module
+        run: go build ./...
+      
+      - name: Test go module
+        run: go test -v ./...
 
       - name: Publish go module
         run: GOPROXY=proxy.golang.org go list -m "github.com/${{ env.GITHUB_REPOSITORY }}@${{ needs.release-info-extraction.outputs.release_version }}"
@@ -206,10 +219,19 @@ jobs:
                       "type": "button",
                       "text": {
                         "type": "plain_text",
-                        "text": "View package"
+                        "text": "View Go package"
                       },
                       "style": "primary",
-                      "url": "https://proxy.golang.org/github.com/${{ env.GITHUB_REPOSITORY }}/@v/${{ needs.release-info-extraction.outputs.release_version }}.info"
+                      "url": "https://pkg.go.dev/github.com/${{ env.GITHUB_REPOSITORY }}@${{ needs.release-info-extraction.outputs.release_version }}"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "gopkg.in package"
+                      },
+                      "style": "primary",
+                      "url": "https://gopkg.in/${{ env.GITHUB_REPOSITORY }}.${{ env.MAJOR_VERSION }}"
                     }
                   ]
                 }
