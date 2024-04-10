@@ -94,9 +94,10 @@ jobs:
             core.setOutput('release_exists', releaseVersionExists.exists);
             core.setOutput('release_notes', releaseVersionExists.releaseNotes);
 
-            // Extract major version
-            MAJOR_VERSION=$(echo "${{ needs.release-info-extraction.outputs.release_version }}" | cut -d '.' -f 1)
-            echo "MAJOR_VERSION=$MAJOR_VERSION" >> $GITHUB_ENV
+      - name: Extract major version
+        run: |
+          MAJOR_VERSION=$(echo "${{ steps.release_info.outputs.release_version }}" | cut -d '.' -f 1)
+          echo "MAJOR_VERSION=$MAJOR_VERSION" >> $GITHUB_ENV
 
   publish:
     needs: release-info-extraction
