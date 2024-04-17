@@ -1,7 +1,21 @@
 # numerator-go-sdk
 Numerator SDK for the Go programming language.
 
+## How to use
+To get the package, execute:
+```bash
+go get gopkg.in/numerator-io/sdk-go.v0
+```
+
+Or
+```bash
+go get github.com/numerator-io/sdk-go
+```
+
 ## Quickstart
+You can explore demonstrations of feature flag service use cases in the `sdk-samples` directory. 
+
+For an illustration of how to utilize the `NumeratorProvider`, check out `cmd/example.go` or see the example provided below for further instruction.
 
 1. Create a `NumeratorProvider` embedding prefered Providers and define some custom methods:
 
