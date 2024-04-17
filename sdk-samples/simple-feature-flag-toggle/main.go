@@ -55,7 +55,6 @@ func main() {
 	contextProvider := context.NewContextProvider()
 	// contextProvider.Set("env", "dev")
 	exampleNumeratorProvider := NewNumeratorProvider(numeratorConfig, contextProvider)
-	fmt.Println("Numerator Provider init", exampleNumeratorProvider)
 
 	e := echo.New()
 
@@ -67,7 +66,7 @@ func main() {
 	e.GET("/hello", func(c echo.Context) error {
 		enabled := exampleNumeratorProvider.FeatureFlagHelloEnabled()
 		if enabled {
-			return c.JSON(http.StatusOK, fmt.Sprintf("Flag value is %t.\nWelcome to Numerator!", enabled))
+			return c.JSON(http.StatusOK, fmt.Sprintf("Flag value is %t. Welcome to Numerator!", enabled))
 		}
 		return c.JSON(http.StatusOK, fmt.Sprintf("Flag value is %t.", enabled))
 	})
